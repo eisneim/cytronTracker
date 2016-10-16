@@ -5,10 +5,11 @@ import { name, version } from './package.json'
 
 const config = {
   entry: {
-    'cytronTracker': [
+    'trackerDemo': [
       'webpack-dev-server/client?http://0.0.0.0:3000',
-      __dirname + '/src/index.js'
-    ]
+      __dirname + '/demo/js/index.js',
+    ],
+    'cytronTracker': __dirname + '/src/index.js',
   },
   output: {
     path: 'dist/',
@@ -23,24 +24,28 @@ const config = {
     preLoaders: [{
       test: /\.jsx?$/,
       // exclude: /node_modules|dist|build|demo|doc/,
-      include: path.join(__dirname, 'src'),
+      include: [
+        path.join(__dirname, 'src'),
+        path.join(__dirname, 'demo'),
+      ],
       // if you follow along, that will make sure our code style unified
       loaders: ['eslint-loader'],
     }],
     loaders: [{
-        test: /\.jsx?$/,
-        include: [
-          path.resolve(__dirname, 'src'),
-          // path.resolve(__dirname, 'config'),
-        ],
-        loaders: ['babel'],
-      },
-      { test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=10000' },
-    ],
+      test: /\.jsx?$/,
+      include: [
+        path.resolve(__dirname, 'src'),
+        path.resolve(__dirname, 'demo'),
+        // path.resolve(__dirname, 'config'),
+      ],
+      loaders: ['babel'],
+    },
+    { test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=10000' },
+  ],
   },
   resolve: {
     // which file extension can be require or import "name" without specify .js .jsx
-    extensions: [ '', '.js', '.jsx' ],
+    extensions: ['', '.js', '.jsx'],
     alias: {
       'cy-lib': path.resolve(__dirname, 'src/_lib'),
       'classnames': path.resolve(__dirname, 'src/utils/classnames'),
@@ -60,7 +65,7 @@ const config = {
   },
   plugins: [
     new webpack.BannerPlugin(
-`       ______      __
+      `       ______      __
     / ____/_  __/ /__________  ____
    / /   / / / / __/ ___/ __ \\/ __ \\
   / /___/ /_/ / /_/ /  / /_/ / / / /
