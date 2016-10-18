@@ -1,11 +1,12 @@
+window.cyDebug = require('debug')
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { makeStore } from './store.js'
 import { ConnectedApp } from './components/App'
+import { setupModuleCss } from 'CSJS'
 
-import debug from 'debug'
-window.cyDebug = debug
 // import CytronTracker from '../src'
 
 let defaultConfig = {
@@ -34,6 +35,8 @@ class CytronTrackerApp {
     )
   }
 }
+
+setupModuleCss(document.getElementsByTagName('head')[0])
 
 // window.CytronTrackerApp = CytronTrackerApp
 // module.exports = CytronTrackerApp

@@ -1,5 +1,5 @@
 export function doSome() {
   return {
-    type: 'DO_SOME_SHIT'
+    type: 'DO_SOME_SHIT',
   }
 }

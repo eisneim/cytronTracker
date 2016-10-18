@@ -1,9 +1,16 @@
 import React from 'react'
+import cx from 'classnames'
+import styles from '../styles'
+
+const debug = require('debug')('cy:App')
+debug('styles:', styles)
 
 export default class App extends React.Component {
   render() {
     return (
-      <h1>Hello world</h1>
+      <div className={cx(styles.cytronApp, styles.clearfix)}>
+        <h1>Hello world</h1>
+      </div>
     )
   }
 }

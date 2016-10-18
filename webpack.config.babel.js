@@ -45,10 +45,11 @@ const config = {
   },
   resolve: {
     // which file extension can be require or import "name" without specify .js .jsx
-    extensions: ['', '.js', '.jsx'],
+    extensions: [ '', '.js', '.jsx' ],
     alias: {
       'cy-lib': path.resolve(__dirname, 'src/_lib'),
-      'classnames': path.resolve(__dirname, 'src/utils/classnames'),
+      'CSJS': path.resolve(__dirname, 'demo/js/lib/csjs'),
+      'classnames': path.resolve(__dirname, 'demo/js/lib/classnames'),
     },
   },
   devServer: {
