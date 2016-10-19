@@ -8,7 +8,8 @@ export default {
   bgLighter: '#343434',
   bgActive: '#9e9e9e',
   colorMain: '#a7a7a7',
-  colorActive: '#349bc1',
+  colorActive: '#349bc1', // blue
+  colorAccent: '#c0e886', // green
   colorDarker: '#696a6a',
   colorDisabled: '#35353',
 }

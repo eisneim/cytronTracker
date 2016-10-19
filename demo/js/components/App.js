@@ -6,6 +6,7 @@ import csjs from 'CSJS'
 
 // import { FlexRow } from './_shared/Flex'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
+import { Icon, Button } from './ui'
 
 const cxs = csjs`
   .cytronApp {
@@ -49,20 +50,24 @@ export default class App extends React.Component {
     const { layout } = this.props
     return (
       <div className={cx(cxs.cytronApp, styles.clearfix)}>
-        <div style={{ flex: 1 }}>
-          <Panel title="Stage" height={700}>
+        <div style={{ flex: 1, height: '100%' }}>
+          <Panel title={ 'CytronTracker@' + process.env.VERSION } height={layout.windowHeight}>
             <PanelContent>
               <h1>wazz up?</h1>
             </PanelContent>
             <PanelFooter>
               <span>footer one</span>
             </PanelFooter>
+            <PanelActions>
+              <Icon name="build"/>
+            </PanelActions>
           </Panel>
         </div>
         <section className={cxs.sideSection}>
           <Panel title="Video Source">
             <PanelContent>
               <span>some shit</span>
+              <Button size="md" raised>button?</Button>
             </PanelContent>
           </Panel>
           <div className={cxs.horSpaceer}/>
