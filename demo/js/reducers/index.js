@@ -28,7 +28,7 @@ export const appReducer = cytron => (state = {}, action) => {
     config:     state.config,
     root:       reducerWraper(rootHandles, state.root, action, cytron),
     layout:     reducerWraper(layoutHandles, state.layout, action, cytron),
-    trackers:   reducerWraper(trackersHandles, state.resource, action, cytron),
+    trackers:   reducerWraper(trackersHandles, state.trackers, action, cytron),
     masks:      reducerWraper(masksHandles, state.masks, action, cytron),
     items:      reducerWraper(itemsHandles, state.items, action, cytron),
     resources:  reducerWraper(resourcesHandles, state.resources, action, cytron),

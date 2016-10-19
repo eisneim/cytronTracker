@@ -3,12 +3,6 @@ import csjs from 'CSJS'
 
 // global shared style should be defined here
 module.exports = csjs`
-  .cytronApp {
-    width: 100%;
-    height: 100%;
-    background-color: ${theme.bgDark};
-    color: ${theme.colorMain};
-  }
   .hide{
     visibility: hidden;
   }

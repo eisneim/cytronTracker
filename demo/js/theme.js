@@ -1,5 +1,7 @@
 export default {
   bgMain: '#262626',
+  bgMainBorder: '#1b1b1b',
+  bgMainDarker: '#1a191a',
   bgDarker: '#141414',
   bgInput: '#1f1f1f',
   bgDark: '#131313',
