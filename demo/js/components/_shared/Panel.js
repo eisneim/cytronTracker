@@ -17,6 +17,11 @@ const styles = csjs`
   display: flex;
   flex-direction: column;
 }
+.panelBase p {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 .panelBase.active{
   border: solid 1px ${theme.colorActive};
 }
@@ -81,7 +86,10 @@ export class PanelActions extends Component {
 }
 export class PanelContent extends Component {
   render() {
-    return <Scrollable className={styles.panelContent}>{this.props.children}</Scrollable>
+    const { children, padding } = this.props
+    return <Scrollable className={styles.panelContent}>
+      { padding ? <div style={{ padding: padding }}>{children}</div> : children }
+    </Scrollable>
   }
 }
 export class PanelFooter extends Component {

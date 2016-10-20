@@ -15,8 +15,6 @@ const styles = csjs`
   border-radius: 2px;
   text-align: center;
   transition: background-color 0.3s ease;
-  margin-left: 4px;
-  margin-right: 4px;
 }
 .btn:hover{
   background-color: rgba(0,0,0,0.2);
@@ -76,7 +74,8 @@ const styles = csjs`
   font-size: 20px;
 }
 .size_sm {
-  padding: 2px 5px;
+  height: 20px;
+  padding: 0px 5px;
 }
 .size_sm.rounded {
   width:25px;

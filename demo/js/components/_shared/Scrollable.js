@@ -25,11 +25,11 @@ const styles = csjs`
   }
   .thumbHorizontal{
     cursor: pointer;
-    background-color: ${theme.bgMain};
+    background-color: ${theme.bgMainDarker};
   }
   .scrollbarVertical{
     background-color: ${theme.bgDarker};
-    border-left: ${theme.bgDark};
+    border-left: solid 1px ${theme.bgMainBorder};
     height:100%;
     right: -1px;
   }

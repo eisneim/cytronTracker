@@ -6,7 +6,8 @@ import csjs from 'CSJS'
 
 // import { FlexRow } from './_shared/Flex'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
-import { Icon, Button } from './ui'
+import { Icon, CheckBox } from './ui'
+import { ConnectedVideoSource } from './panels/VideoSource'
 
 const cxs = csjs`
   .cytronApp {
@@ -64,18 +65,14 @@ export default class App extends React.Component {
           </Panel>
         </div>
         <section className={cxs.sideSection}>
-          <Panel title="Video Source">
-            <PanelContent>
-              <span>some shit</span>
-              <Button size="md" raised>button?</Button>
-            </PanelContent>
-          </Panel>
+          <ConnectedVideoSource/>
           <div className={cxs.horSpaceer}/>
           <Panel tabs={toRightTabs}
             activeTab={toRightTabs[1].key}
             onSelectTab={this._switchTopRighTab}>
             <PanelContent>
-              <span>some shit</span>
+              <p>some shit</p>
+              <CheckBox>Good?</CheckBox>
             </PanelContent>
             <PanelActions>
               <span>action one</span>
