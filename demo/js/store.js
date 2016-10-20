@@ -10,8 +10,8 @@ var defaultStateObj = {
   root: {
     video: {
       url: 'footage.mp4',
-      fps: 24,
-      width: null, height: null,
+      fps: 25,
+      width: 800, height: 450,
       duration: null,
     },
     isTracking: false,
@@ -25,8 +25,8 @@ var defaultStateObj = {
     windowHeight: null,
     rightSectionWidth: 303,
     mainSectionWidth: null,
-    canvasWidth: null,
-    canvasHeight: null,
+    canvasWidth: 800,
+    canvasHeight: 450,
     activeItemTab: 'TRACKS', // MASKS, FILES
     showExporter: false,
   },

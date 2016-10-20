@@ -1,11 +1,13 @@
 window.cyDebug = require('debug')
-
+const debug = cyDebug('cy:root')
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { makeStore } from './store.js'
 import getApp from './components/App'
 import { setupModuleCss } from 'CSJS'
+
+import { rootActions } from './actionCreators'
 
 // import CytronTracker from '../src'
 
@@ -19,8 +21,61 @@ class CytronTrackerApp {
     this.$container = $container
     this.config = {}
     Object.assign(this.config, config)
+    // stores the video element in memory
+    this.$video = null
 
     this.store = makeStore(this)
+  }
+
+  destroyPreviousVideo() {
+    document.body.removeChild(this.$video)
+  }
+
+  setVideo(source) {
+    if (this.$video) this.destroyPreviousVideo()
+
+    this.$video = document.createElement('video', {
+      src: source,
+    })
+    this.$video.style.visibility = 'hidden'
+    document.body.appendChild(this.$video)
+    // The first frame of the media has finished loading.
+    this.$video.addEventListener('loadeddata', () => {
+      this.store.dispatch(rootActions.videoReady(this.$video))
+    })
+    this.$video.addEventListener('loadedmetadata', () => {
+      debug('videoEvt:', 'loadedmetadata')
+    })
+    this.$video.addEventListener('waiting', () => {
+      debug('videoEvt:', 'waiting')
+    })
+    this.$video.addEventListener('seeking', () => {
+      debug('videoEvt:', 'seeking')
+    })
+    this.$video.addEventListener('seeked', () => {
+      debug('videoEvt:', 'seeked')
+    })
+    this.$video.addEventListener('ended', () => {
+      debug('videoEvt:', 'ended')
+    })
+    this.$video.addEventListener('canplay', () => {
+      debug('videoEvt:', 'canplay')
+    })
+    this.$video.addEventListener('canplaythrough', () => {
+      debug('videoEvt:', 'canplaythrough')
+    })
+    this.$video.addEventListener('emptied', () => {
+      debug('videoEvt:', 'emptied')
+    })
+    this.$video.addEventListener('suspend', () => {
+      debug('videoEvt:', 'suspend')
+    })
+    this.$video.addEventListener('ratechange', () => {
+      debug('videoEvt:', 'ratechange')
+    })
+    this.$video.addEventListener('stalled', () => {
+      debug('videoEvt:', 'stalled')
+    })
   }
 
   render() {

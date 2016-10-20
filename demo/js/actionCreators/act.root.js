@@ -1,5 +1,6 @@
-export function doSome() {
+export function videoReady($video) {
   return {
-    type: 'DO_SOME_SHIT',
+    type: 'VIDEO_READY',
+    payload: $video,
   }
 }

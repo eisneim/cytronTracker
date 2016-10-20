@@ -5,7 +5,7 @@ import theme from '../theme'
 import csjs from 'CSJS'
 
 // import { FlexRow } from './_shared/Flex'
-import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
+import Panel, { PanelContent, PanelActions } from './_shared/Panel'
 import { CheckBox } from './ui'
 import { ConnectedVideoSource } from './panels/VideoSource'
 import { ConnectedStage } from './Stage'

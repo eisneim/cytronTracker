@@ -29,7 +29,7 @@ export default class Timeline extends React.Component {
   }
 
   draw() {
-    const { currentFrame, video } = this.props.root
+    const { video } = this.props.root
     if (!video.duration) {
       this.ctx.fillText('processe vdieo first to generate timeline', 100, 15)
       return
