@@ -10,14 +10,14 @@ const styles = csjs`
   border:none;
   background: transparent;
   color: ${theme.colorMain};
-  background-color: rgba(0, 0, 0, 0.1);
+  // background-color: rgba(0, 0, 0, 0.1);
   position:relative;
   border-radius: 2px;
   text-align: center;
   transition: background-color 0.3s ease;
 }
 .btn:hover{
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0,0,0,0.1);
 }
 .btn.disabled {
   cursor: not-allowed;
@@ -59,8 +59,7 @@ const styles = csjs`
   font-size: 14px;
 }
 .size_lg i {
-  font-size: 16px;
-  top: 3px;
+  font-size: 20px;
 }
 .size_md {
   padding: 5px 10px;

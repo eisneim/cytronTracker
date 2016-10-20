@@ -4,7 +4,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { makeStore } from './store.js'
-import { ConnectedApp } from './components/App'
+import getApp from './components/App'
 import { setupModuleCss } from 'CSJS'
 
 // import CytronTracker from '../src'
@@ -26,10 +26,11 @@ class CytronTrackerApp {
   render() {
     if (this.isRendered) return
     this.isRendered = true
+    const App = getApp(this)
 
     ReactDOM.render(
       <Provider store={ this.store }>
-        <ConnectedApp />
+        <App />
       </Provider>
       , this.$container
     )

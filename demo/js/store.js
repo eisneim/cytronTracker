@@ -23,10 +23,10 @@ var defaultStateObj = {
   layout: {
     windowWidth: null,
     windowHeight: null,
+    rightSectionWidth: 303,
     mainSectionWidth: null,
     canvasWidth: null,
     canvasHeight: null,
-    timelineHeight: null,
     activeItemTab: 'TRACKS', // MASKS, FILES
     showExporter: false,
   },
@@ -82,6 +82,7 @@ export function makeStore(cytronApp) {
   // @TODO: now do some check, make sure some fields exists
   state.layout.windowWidth = window.innerWidth
   state.layout.windowHeight = window.innerHeight
+  state.layout.mainSectionWidth = state.layout.windowWidth - state.layout.rightSectionWidth
   // save config options to state.config
   state.config = cytronApp.config
 

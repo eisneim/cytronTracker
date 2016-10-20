@@ -12,4 +12,9 @@ export default {
   colorAccent: '#c0e886', // green
   colorDarker: '#696a6a',
   colorDisabled: '#35353',
+
+  timelineHeight: 27,
+  timelineScaleMainHeight: 8,
+  timelineScaleSubheight: 5,
+  controlsBarHeight: 36,
 }

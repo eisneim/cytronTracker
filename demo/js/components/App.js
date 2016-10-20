@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 import cx from 'classnames'
 import styles from '../styles'
 import theme from '../theme'
@@ -6,8 +6,9 @@ import csjs from 'CSJS'
 
 // import { FlexRow } from './_shared/Flex'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
-import { Icon, CheckBox } from './ui'
+import { CheckBox } from './ui'
 import { ConnectedVideoSource } from './panels/VideoSource'
+import { ConnectedStage } from './Stage'
 
 const cxs = csjs`
   .cytronApp {
@@ -40,56 +41,6 @@ const toRightTabs = [
   { name: 'Masks', key: 'MASKS' },
 ]
 
-
-export default class App extends React.Component {
-
-  _switchTopRighTab(tabKey) {
-    debug('tabKey:', tabKey)
-  }
-
-  render() {
-    const { layout } = this.props
-    return (
-      <div className={cx(cxs.cytronApp, styles.clearfix)}>
-        <div style={{ flex: 1, height: '100%' }}>
-          <Panel title={ 'CytronTracker@' + process.env.VERSION } height={layout.windowHeight}>
-            <PanelContent>
-              <h1>wazz up?</h1>
-            </PanelContent>
-            <PanelFooter>
-              <span>footer one</span>
-            </PanelFooter>
-            <PanelActions>
-              <Icon name="build"/>
-            </PanelActions>
-          </Panel>
-        </div>
-        <section className={cxs.sideSection}>
-          <ConnectedVideoSource/>
-          <div className={cxs.horSpaceer}/>
-          <Panel tabs={toRightTabs}
-            activeTab={toRightTabs[1].key}
-            onSelectTab={this._switchTopRighTab}>
-            <PanelContent>
-              <p>some shit</p>
-              <CheckBox>Good?</CheckBox>
-            </PanelContent>
-            <PanelActions>
-              <span>action one</span>
-            </PanelActions>
-          </Panel>
-          <div className={cxs.horSpaceer}/>
-          <Panel title="Tracker Setting">
-            <PanelContent>
-              <span>some shit</span>
-            </PanelContent>
-          </Panel>
-        </section>
-      </div>
-    )
-  }
-}
-
 import { connect } from 'react-redux'
 import actions from '../actionCreators'
 
@@ -99,7 +50,57 @@ function mapStateToProps(state) {
   }
 }
 
-export const ConnectedApp = connect(
-  mapStateToProps,
-  actions
-)(App)
+export default (cytronApp) => {
+  class App extends React.Component {
+
+    static childContextTypes = {
+      cytron: PropTypes.object,
+    };
+
+    getChildContext() {
+      return {
+        cytron: cytronApp,
+      }
+    }
+
+    _switchTopRighTab(tabKey) {
+      debug('tabKey:', tabKey)
+    }
+
+    render() {
+      const { layout } = this.props
+      return (
+        <div className={cx(cxs.cytronApp, styles.clearfix)}>
+          <ConnectedStage />
+          <section className={cxs.sideSection} style={{ width: layout.rightSectionWidth }}>
+            <ConnectedVideoSource/>
+            <div className={cxs.horSpaceer}/>
+            <Panel tabs={toRightTabs}
+              activeTab={toRightTabs[1].key}
+              onSelectTab={this._switchTopRighTab}>
+              <PanelContent>
+                <p>some shit</p>
+                <CheckBox>Good?</CheckBox>
+              </PanelContent>
+              <PanelActions>
+                <span>action one</span>
+              </PanelActions>
+            </Panel>
+            <div className={cxs.horSpaceer}/>
+            <Panel title="Tracker Setting">
+              <PanelContent>
+                <span>some shit</span>
+              </PanelContent>
+            </Panel>
+          </section>
+        </div>
+      )
+    }
+  }
+
+  return connect(
+    mapStateToProps,
+    actions
+  )(App)
+}
+
