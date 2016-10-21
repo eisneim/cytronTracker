@@ -5,8 +5,8 @@ export default {
     root.video.duration = $video.duration
     root.video.width = $video.videoWidth
     root.video.height = $video.videoHeight
-
-    return root
+    root.video = Object.assign({}, root.video)
+    return Object.assign({}, root)
   },
   SET_VIDEO(root, { url, fps }, cytron) {
     root.video.url = url

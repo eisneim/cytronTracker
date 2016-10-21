@@ -5,6 +5,8 @@ import { findDOMNode } from 'react-dom'
 import theme from '../../theme'
 import csjs from 'CSJS'
 
+const debug = require('debug')('cy:Timeline')
+
 const styles = csjs`
   .timeline {
     border-top: solid 1px ${theme.bgMainBorder};
@@ -25,14 +27,26 @@ export default class Timeline extends React.Component {
 
   clear() {
     this.ctx.fillStyle = '#4e4e4e'
-    this.ctx.clearRect(0, 0, this.props.availableWidth, theme.timelineHeight - 1)
+    this.ctx.clearRect(0, 0, this.props.avaWidth, theme.timelineHeight - 1)
   }
 
   draw() {
-    const { video } = this.props.root
-    if (!video.duration) {
+    const { avaWidth, duration, fps } = this.props
+    debug('drawing', duration)
+    if (!duration) {
       this.ctx.fillText('processe vdieo first to generate timeline', 100, 15)
       return
+    }
+    const fCount = duration * fps
+    const drawPerFrame = 5
+    let iter = fCount / drawPerFrame
+    const pixDist = avaWidth / iter
+    const { timelineHeight, timelineScaleMainHeight } = theme
+    while (iter > 0) {
+      let x = iter * pixDist
+      this.ctx.fillRect(x, timelineHeight - timelineScaleMainHeight, 1, timelineScaleMainHeight)
+      this.ctx.fillText(Math.floor(iter * drawPerFrame), x, 20)
+      iter--
     }
   }
 
@@ -43,23 +57,25 @@ export default class Timeline extends React.Component {
   }
 
   componentDidUpdate() {
+    debug('didUpdate')
     this.init()
     this.clear()
     this.draw()
   }
 
-  shouldComponentUpdate() {
-    return false
-  }
+  // shouldComponentUpdate(nextProp) {
+  //   const shouldUpdate = nextProp.root.duration !== this.props.root.duration
+  //   debug('should timeline updated?', shouldUpdate)
+  //   return shouldUpdate
+  // }
 
   render() {
-    const { availableWidth } = this.props
-
+    const { avaWidth } = this.props
     return (
       <div className={styles.timeline}>
         <canvas
           ref="canvas"
-          width={availableWidth}
+          width={avaWidth}
           height={theme.timelineHeight - 1}
           style={{ display: 'block' }}
         />
@@ -69,16 +85,19 @@ export default class Timeline extends React.Component {
 }
 
 import { connect } from 'react-redux'
-import actions from '../../actionCreators'
+import { rootActions } from '../../actionCreators'
 
 function mapStateToProps(state) {
+  const { root } = state
   return {
-    availableWidth: state.layout.mainSectionWidth,
-    root: state.root,
+    avaWidth: state.layout.mainSectionWidth,
+    currentFrame: root.currentFrame,
+    fps: root.video.fps,
+    duration: root.video.duration,
   }
 }
 
 export const ConnectedTimeline = connect(
   mapStateToProps,
-  actions
+  rootActions
 )(Timeline)
