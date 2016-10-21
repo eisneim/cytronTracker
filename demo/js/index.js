@@ -31,13 +31,18 @@ class CytronTrackerApp {
     document.body.removeChild(this.$video)
   }
 
-  setVideo(source) {
+  setVideo(source, fps) {
     if (this.$video) this.destroyPreviousVideo()
 
-    this.$video = document.createElement('video', {
-      src: source,
-    })
-    this.$video.style.visibility = 'hidden'
+    this.$video = document.createElement('video')
+    this.$video.src = source
+    this.$video.fps = fps
+    this.$video.style.display = 'none'
+    // this.$video.style.visibility = 'hidden'
+    // this.$video.style.position = 'absolute'
+    // this.$video.style.top = '0'
+    // this.$video.style.left = '0'
+    this.$video.preload = true
     document.body.appendChild(this.$video)
     // The first frame of the media has finished loading.
     this.$video.addEventListener('loadeddata', () => {

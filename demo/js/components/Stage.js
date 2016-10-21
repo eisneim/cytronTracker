@@ -59,7 +59,7 @@ export default class Stage extends React.Component {
 }
 
 import { connect } from 'react-redux'
-import actions from '../actionCreators'
+import { rootActions } from '../actionCreators'
 
 function mapStateToProps(state) {
   return {
@@ -70,5 +70,5 @@ function mapStateToProps(state) {
 
 export const ConnectedStage = connect(
   mapStateToProps,
-  actions
+  rootActions
 )(Stage)

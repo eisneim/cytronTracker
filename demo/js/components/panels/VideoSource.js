@@ -12,6 +12,11 @@ import { Button, Input } from '../ui'
 
 export default class VideoSource extends React.Component {
 
+  _processVideo = () => {
+    const { url, fps } = this.props.root.video
+    this.props.setVideo(this.$url || url, this.$fps || fps)
+  }
+
   render() {
     const { video } = this.props.root
     return (
@@ -29,7 +34,9 @@ export default class VideoSource extends React.Component {
                   onChange={e =>{ this.$fps = e.target.value }}/>
               </div>
               <FlexSpan/>
-              <Button size="sm" raised style={{ marginTop: 5 }}>Process</Button>
+              <Button size="sm" raised
+                onClick={this._processVideo}
+                style={{ marginTop: 5 }}>Process</Button>
             </FlexRow>
           </div>
         </PanelContent>
@@ -39,7 +46,7 @@ export default class VideoSource extends React.Component {
 }
 
 import { connect } from 'react-redux'
-import actions from '../../actionCreators'
+import { rootActions } from '../../actionCreators'
 
 function mapStateToProps(state) {
   return {
@@ -49,5 +56,5 @@ function mapStateToProps(state) {
 
 export const ConnectedVideoSource = connect(
   mapStateToProps,
-  actions
+  rootActions
 )(VideoSource)

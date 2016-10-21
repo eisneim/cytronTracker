@@ -4,3 +4,10 @@ export function videoReady($video) {
     payload: $video,
   }
 }
+
+export function setVideo(url, fps) {
+  return {
+    type: 'SET_VIDEO',
+    payload: { url, fps },
+  }
+}

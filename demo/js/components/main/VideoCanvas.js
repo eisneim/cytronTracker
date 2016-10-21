@@ -75,7 +75,7 @@ export default class VideoCanvas extends React.Component {
 
 
 import { connect } from 'react-redux'
-import actions from '../../actionCreators'
+import { rootActions } from '../../actionCreators'
 
 function mapStateToProps(state) {
   const { layout } = state
@@ -91,5 +91,5 @@ function mapStateToProps(state) {
 
 export const ConnectedVideoCanvas = connect(
   mapStateToProps,
-  actions
+  rootActions
 )(VideoCanvas)
