@@ -37,11 +37,22 @@ export default class VideoCanvas extends React.Component {
     this.dstCtx = this.$dstCanvas.getContext('2d')
   }
 
+  drawCurrentFrame() {
+    const { $video } = this.context.cytron
+    const { cWidth, cHeight } = this.props
+    this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
+    let frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+    this.dstCtx.putImageData(frame, 0, 0)
+  }
+
   componentWillReceiveProps() {
     debug('componentWillReceiveProps')
   }
 
   componentDidUpdate() {
+    if (this.props.duration) {
+      this.drawCurrentFrame()
+    }
     debug('DidUpdate')
   }
 
@@ -78,14 +89,15 @@ import { connect } from 'react-redux'
 import { rootActions } from '../../actionCreators'
 
 function mapStateToProps(state) {
-  const { layout } = state
+  const { layout, root } = state
   return {
-    root: state.root,
     avaWidth: layout.mainSectionWidth,
     avaHeight: layout.windowHeight - theme.controlsBarHeight - theme.timelineHeight -
                 25 * 2, // panel header and footer.
     cWidth: layout.canvasWidth,
     cHeight: layout.canvasHeight,
+    currentFrame: root.currentFrame,
+    duration: root.video.duration,
   }
 }
 

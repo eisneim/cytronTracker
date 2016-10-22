@@ -32,6 +32,10 @@ export default {
       }
     }
 
+    // set the video width and height as well
+    cytron.$video.width = layout.canvasWidth
+    cytron.$video.height = layout.canvasHeight
+
     return layout
   },
 }

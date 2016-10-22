@@ -37,16 +37,16 @@ export default class Timeline extends React.Component {
       this.ctx.fillText('processe vdieo first to generate timeline', 100, 15)
       return
     }
+    //@TODO: use more precise method!!
     const fCount = duration * fps
     const drawPerFrame = 5
     let iter = fCount / drawPerFrame
     const pixDist = avaWidth / iter
     const { timelineHeight, timelineScaleMainHeight } = theme
-    while (iter > 0) {
-      let x = iter * pixDist
+    for (let ii = 0; ii <= iter; ii++) {
+      let x = ii * pixDist
       this.ctx.fillRect(x, timelineHeight - timelineScaleMainHeight, 1, timelineScaleMainHeight)
-      this.ctx.fillText(Math.floor(iter * drawPerFrame), x, 20)
-      iter--
+      this.ctx.fillText(Math.floor(ii * drawPerFrame), x, 20)
     }
   }
 

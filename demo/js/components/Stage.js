@@ -5,7 +5,7 @@ import csjs from 'CSJS'
 
 import { FlexRow, FlexSpan } from './_shared/Flex'
 import { IconButton } from './ui/Button'
-import { Icon } from './ui'
+import { Icon, Conditional } from './ui'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
 import { ConnectedTimeline } from './main/Timeline'
 import { ConnectedVideoCanvas } from './main/VideoCanvas'
@@ -23,20 +23,36 @@ const styles = csjs`
     transform: rotate(180deg);
     position: relative;
   }
+  .timecode {
+    line-height: 3.2;
+  }
+  .timecode em {
+    font-style: normal;
+    color: ${theme.colorActive};
+  }
+  .timecode button {
+    top: 4px
+  }
 `
 
 export default class Stage extends React.Component {
 
 
   render() {
-    const { layout } = this.props
+    const { layout, currentFrame, duration } = this.props
 
     return (
       <div style={{ flex: 1, height: '100%' }}>
         <Panel title={ 'CytronTracker@' + process.env.VERSION } height={layout.windowHeight}>
           <PanelContent>
             <ConnectedVideoCanvas/>
-            <FlexRow className={styles.controlsWraper}>
+            <FlexRow className={styles.controlsWraper}
+              style={{ visibility: duration ? 'visible' : 'hidden' }}>
+              <span className={styles.timecode}>
+                <IconButton name="keyboard_arrow_left"/>
+                Frame: <em>{currentFrame}</em>
+                <IconButton name="keyboard_arrow_right"/>
+              </span>
               <FlexSpan/>
               <IconButton size="lg" name="fast_rewind"/>
               <IconButton size="lg" name="skip_previous"/>
@@ -62,9 +78,12 @@ import { connect } from 'react-redux'
 import { rootActions } from '../actionCreators'
 
 function mapStateToProps(state) {
+  const { root } = state
   return {
     layout: state.layout,
-    root: state.root,
+    currentFrame: root.currentFrame,
+    currentTime: root.currentTime,
+    duration: root.video.duration,
   }
 }
 
