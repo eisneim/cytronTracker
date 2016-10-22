@@ -8,6 +8,8 @@ export function FlexRow({ tagType, className, style, children }) {
   const newStyle = Object.assign({}, (style || {}), {
     display: 'flex',
     flexDirection: 'row',
+    width: '100%',
+    overflow: 'hidden',
   })
   return React.createElement(tagType || 'div', {
     className,

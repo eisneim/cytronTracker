@@ -1,4 +1,8 @@
 const debug = require('debug')('cy:rd.root')
+
+
+// let idCount = 0
+
 /* eslint-disable no-unused-vars */
 export default {
   VIDEO_READY(root, $video, cytron) {
@@ -30,4 +34,7 @@ export default {
     return root
   },
 
+  SELECT_TRACKER(root, id, cytron) {
+
+  },
 }

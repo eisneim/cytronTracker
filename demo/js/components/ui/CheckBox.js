@@ -9,6 +9,10 @@ const styles = csjs`
   display: inline-block;
   line-height: 25px;
   padding: 0px 4px;
+  cursor: pointer;
+}
+.checkbox:hover .icon {
+  color: ${theme.colorActive};
 }
 .icon, .label {
   display: inline-block;
@@ -48,6 +52,7 @@ export default class Checkbox extends React.Component {
     type: React.PropTypes.oneOf([ 'checkbox', 'radio' ]),
     isChecked: React.PropTypes.bool,
     onChange: React.PropTypes.func,
+    selfStateControl: React.PropTypes.bool,
   };
 
   static defaultProps = {
@@ -55,12 +60,20 @@ export default class Checkbox extends React.Component {
     type: 'checkbox',
   };
 
+  constructor(props) {
+    super(props)
+    this.state = { selfIsChecked: props.isChecked }
+  }
+
   render() {
-    const { disabled, isChecked, children } = this.props
+    const { disabled, isChecked, children, selfStateControl } = this.props
+    const { selfIsChecked } = this.state
+    const checked = selfStateControl ? selfIsChecked : isChecked
+    // console.log('isChecked:', isChecked)
     const icon = icons[this.props.type]
-    const iconName = isChecked ? icon.checked : icon.unchecked
+    const iconName = checked ? icon.checked : icon.unchecked
     const className = cx(styles.checkbox, {
-      [styles.checkboxActive]: isChecked,
+      [styles.checkboxActive]: checked,
       [styles.checkboxDisabled]: disabled,
     })
 
@@ -88,6 +101,10 @@ export default class Checkbox extends React.Component {
 
     if (typeof this.props.onClick === 'function')
       this.props.onClick(e)
+
+    if (this.props.selfStateControl) {
+      this.setState({ selfIsChecked: !this.state.selfIsChecked })
+    }
   }
 }
 

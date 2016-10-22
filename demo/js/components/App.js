@@ -8,6 +8,7 @@ import csjs from 'CSJS'
 import Panel, { PanelContent, PanelActions } from './_shared/Panel'
 import { CheckBox } from './ui'
 import { ConnectedVideoSource } from './panels/VideoSource'
+import { ConnectedTrackerSetting } from './panels/TrackerSetting'
 import { ConnectedStage } from './Stage'
 
 const cxs = csjs`
@@ -87,11 +88,7 @@ export default (cytronApp) => {
               </PanelActions>
             </Panel>
             <div className={cxs.horSpaceer}/>
-            <Panel title="Tracker Setting">
-              <PanelContent>
-                <span>some shit</span>
-              </PanelContent>
-            </Panel>
+            <ConnectedTrackerSetting />
           </section>
         </div>
       )

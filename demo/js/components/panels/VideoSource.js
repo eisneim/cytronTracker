@@ -20,7 +20,7 @@ export default class VideoSource extends React.Component {
   render() {
     const { video } = this.props.root
     return (
-      <Panel title="Video Source" height={110}>
+      <Panel title="Video Source" height={115}>
         <PanelContent>
           <div style={{ padding: 10, width: '100%', overflowX: 'hidden' }}>
             <Input value={video.url}

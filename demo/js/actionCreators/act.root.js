@@ -26,3 +26,18 @@ export function canPlay() {
     payload: Date.now(),
   }
 }
+
+export function newTracker(trackerType) {
+  return {
+    type: 'NEW_TRACKER',
+    payload: trackerType,
+  }
+}
+
+export function selectTracker(id) {
+  return {
+    type: 'SELECT_TRACKER',
+    payload: id,
+  }
+}
+

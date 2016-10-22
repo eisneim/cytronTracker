@@ -31,14 +31,12 @@ var defaultStateObj = {
     showExporter: false,
   },
   /* each tracker has:
-    trackConfig: {
-      type: 'MOTION', // 'CORNOR_PIN', 'PLANNAR'
-      motion: false,
-      rotation: false,
-      scale: false,
-    },
-    startPoints: [{
-      trackerId, x, y, rectH, rectW, searchW, searchH
+    id,
+    type: 'MOTION', // 'SCALE_ROTATION', 'CORNOR_PIN', 'PLANNAR'
+    rotation: false,
+    scale: false,
+    frames: [{
+      x, y, rectH, rectW, searchW, searchH
     }],
   */
   trackers: [], // tracker1 => tracks(4) [{x,y},{x,y}], frameNumber is index of each coordinate

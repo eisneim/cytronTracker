@@ -11,7 +11,7 @@ const debug = require('debug')('cy:Panel')
 const styles = csjs`
 .panelBase{
   background-color: ${theme.bgMain};
-  border: ${theme.bgMainBorder};
+  border: solid 1px ${theme.bgMainBorder};
   position: relative;
   user-select: none;
   display: flex;
@@ -86,9 +86,13 @@ export class PanelActions extends Component {
 }
 export class PanelContent extends Component {
   render() {
-    const { children, padding } = this.props
+    let { children, padding, style } = this.props
+    if (padding) {
+      if (!style) style = {}
+      style.padding = padding
+    }
     return <Scrollable className={styles.panelContent}>
-      { padding ? <div style={{ padding: padding }}>{children}</div> : children }
+      { style ? <div style={style}>{children}</div> : children }
     </Scrollable>
   }
 }
@@ -132,10 +136,11 @@ export class Panel extends Component {
   }
 
   render() {
-    const { height, className } = this.props
+    const { height, className, width } = this.props
     const panelStyle = height !== null ? {
       height: height + 'px',
     } : {}
+    if (width) panelStyle.width = width
 
     const childCount = React.Children.count(this.props.children)
     var $content = childCount === 1 ? this.props.children : undefined
@@ -154,7 +159,7 @@ export class Panel extends Component {
     }
 
     return (
-      <div className={styles.panelBase + ' ' + className} style={panelStyle}>
+      <div className={styles.panelBase + ' ' + (className || '')} style={panelStyle}>
         <header className={styles.panelHeader}>
           { this.$getTabOrTitle() }
           <FlexSpan/>

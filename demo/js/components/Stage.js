@@ -50,8 +50,11 @@ export default class Stage extends React.Component {
 
     return (
       <div style={{ flex: 1, height: '100%' }}>
-        <Panel title={ 'CytronTracker@' + process.env.VERSION } height={layout.windowHeight}>
-          <PanelContent>
+        <Panel title={ 'CytronTracker@' + process.env.VERSION }
+          height={layout.windowHeight}
+          width={layout.mainSectionWidth + 2}
+          >
+          <PanelContent style={{ overflow: 'hidden' }}>
             <ConnectedVideoCanvas/>
             <FlexRow className={styles.controlsWraper}
               style={{ visibility: duration ? 'visible' : 'hidden' }}>
