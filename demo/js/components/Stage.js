@@ -5,7 +5,7 @@ import csjs from 'CSJS'
 
 import { FlexRow, FlexSpan } from './_shared/Flex'
 import { IconButton } from './ui/Button'
-import { Icon, Conditional } from './ui'
+import { Icon } from './ui'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
 import { ConnectedTimeline } from './main/Timeline'
 import { ConnectedVideoCanvas } from './main/VideoCanvas'
@@ -37,6 +37,13 @@ const styles = csjs`
 
 export default class Stage extends React.Component {
 
+  _nextFrame = () => {
+    this.props.setFrame(this.props.currentFrame + 1)
+  }
+
+  _prevFrame = () => {
+    this.props.setFrame(this.props.currentFrame - 1)
+  }
 
   render() {
     const { layout, currentFrame, duration } = this.props
@@ -49,9 +56,11 @@ export default class Stage extends React.Component {
             <FlexRow className={styles.controlsWraper}
               style={{ visibility: duration ? 'visible' : 'hidden' }}>
               <span className={styles.timecode}>
-                <IconButton name="keyboard_arrow_left"/>
+                <IconButton onClick={this._prevFrame}
+                  name="keyboard_arrow_left"/>
                 Frame: <em>{currentFrame}</em>
-                <IconButton name="keyboard_arrow_right"/>
+                <IconButton onClick={this._nextFrame}
+                  name="keyboard_arrow_right"/>
               </span>
               <FlexSpan/>
               <IconButton size="lg" name="fast_rewind"/>

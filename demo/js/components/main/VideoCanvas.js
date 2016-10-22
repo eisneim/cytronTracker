@@ -45,15 +45,19 @@ export default class VideoCanvas extends React.Component {
     this.dstCtx.putImageData(frame, 0, 0)
   }
 
-  componentWillReceiveProps() {
-    debug('componentWillReceiveProps')
-  }
-
-  componentDidUpdate() {
-    if (this.props.duration) {
+  componentWillReceiveProps(newProps) {
+    const { canplayId, currentFrame } = this.props
+    if (newProps.canplayId !== canplayId || currentFrame !== newProps.currentFrame) {
+      debug('componentWillReceiveProps draw frame')
       this.drawCurrentFrame()
     }
-    debug('DidUpdate')
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.duration !== this.props.duration) {
+      debug('DidUpdate, draw frame')
+      this.drawCurrentFrame()
+    }
   }
 
   // shouldComponentUpdate(nextProp) {
@@ -98,6 +102,7 @@ function mapStateToProps(state) {
     cHeight: layout.canvasHeight,
     currentFrame: root.currentFrame,
     duration: root.video.duration,
+    canplayId: root.canplayId,
   }
 }
 

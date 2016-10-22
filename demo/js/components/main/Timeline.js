@@ -91,7 +91,7 @@ function mapStateToProps(state) {
   const { root } = state
   return {
     avaWidth: state.layout.mainSectionWidth,
-    currentFrame: root.currentFrame,
+    // currentFrame: root.currentFrame,
     fps: root.video.fps,
     duration: root.video.duration,
   }

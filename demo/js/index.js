@@ -64,7 +64,8 @@ class CytronTrackerApp {
       debug('videoEvt:', 'ended')
     })
     this.$video.addEventListener('canplay', () => {
-      debug('videoEvt:', 'canplay')
+      // debug('videoEvt:', 'canplay')
+      this.store.dispatch(rootActions.canPlay())
     })
     this.$video.addEventListener('canplaythrough', () => {
       debug('videoEvt:', 'canplaythrough')
