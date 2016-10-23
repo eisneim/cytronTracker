@@ -48,3 +48,29 @@ export function trackerPointMove(x, y, index) {
     payload: { x, y, index },
   }
 }
+
+export function trackNextFrame() {
+  return {
+    type: 'TRACK_BY_FRAME',
+    payload: true,
+  }
+}
+export function trackPrevFrame() {
+  return {
+    type: 'TRACK_BY_FRAME',
+    payload: false,
+  }
+}
+
+export function trackForward() {
+  return {
+    type: 'TRACKING',
+    payload: true,
+  }
+}
+export function trackBackward() {
+  return {
+    type: 'TRACKING',
+    payload: false,
+  }
+}

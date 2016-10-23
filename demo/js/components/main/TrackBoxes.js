@@ -14,7 +14,7 @@ const styles = csjs`
     position: absolute;
   }
   .searchBox {
-    border: solid 1px rgba(255, 255, 255, 0.2);
+    border: dashed 1px rgba(255, 255, 255, 0.2);
   }
   .searchBox:hover {
     border-color: rgba(255,255,255, 0.5);

@@ -87,4 +87,13 @@ export default {
     trackers[trackerIndex] = newTracker
     return trackers
   },
+
+  TRACK_BY_FRAME_DONE(trackers, isForward, cytron) {
+
+  },
+
+  TRACKING(trackers, isForward, cytron) {
+
+  },
+
 }

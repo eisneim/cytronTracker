@@ -40,20 +40,29 @@ export default class VideoCanvas extends React.Component {
   drawCurrentFrame() {
     const { $video } = this.context.cytron
     const { cWidth, cHeight } = this.props
+    let prevFrame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+
     this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
     let frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+    // should do the tracking job
+    if (this.props.delayedTrackJob) {
+      this.context.cytron.track(prevFrame, frame)
+    }
     this.dstCtx.putImageData(frame, 0, 0)
+
   }
 
   componentWillReceiveProps(newProps) {
-    const { canplayId, currentFrame } = this.props
-    if (newProps.canplayId !== canplayId || currentFrame !== newProps.currentFrame) {
+    // this happens everytime canplay id is chagned
+    const { canplayId } = this.props
+    if (newProps.canplayId !== canplayId) {
       debug('componentWillReceiveProps draw frame')
       this.drawCurrentFrame()
     }
   }
 
   componentDidUpdate(prevProps) {
+    // this is only for change video source
     if (prevProps.duration !== this.props.duration) {
       debug('DidUpdate, draw frame')
       this.drawCurrentFrame()
@@ -103,6 +112,7 @@ function mapStateToProps(state) {
     currentFrame: root.currentFrame,
     duration: root.video.duration,
     canplayId: root.canplayId,
+    delayedTrackJob: root.delayedTrackJob,
   }
 }
 
