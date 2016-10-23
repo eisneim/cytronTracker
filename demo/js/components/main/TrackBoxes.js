@@ -3,6 +3,7 @@ import React from 'react'
 // import cx from 'classnames'
 import theme from '../../theme'
 import csjs from 'CSJS'
+import Dragable from '../_shared/Dragable'
 const debug = require('debug')('cy:TrackBoxes')
 
 const styles = csjs`
@@ -31,6 +32,28 @@ export default class TrackBoxes extends React.Component {
   // static contextTypes = {
   //   cytron: React.PropTypes.object,
   // };
+  getOffset(ee, se) {
+    return {
+      offsetX: ee.clientX - se.clientX,
+      offsetY: ee.clientY - se.clientY,
+    }
+  }
+
+  _rectMove = (ee, se, index, point) => {
+    if (!this.__moveStart) {
+      this.__moveStart = {
+        x: point.x, y: point.y,
+      }
+    }
+    const { offsetX, offsetY } = this.getOffset(ee, se)
+    let x = this.__moveStart.x + offsetX
+    let y = this.__moveStart.y + offsetY
+    this.props.trackerPointMove(x, y, index)
+  }
+
+  _dragUp = () => {
+    this.__moveStart = null
+  }
 
   // @TODO: resizable tracker search & inner box
   $boxes() {
@@ -41,7 +64,7 @@ export default class TrackBoxes extends React.Component {
 
     return frame.map((point, index) => {
       const { x, y, rectW, rectH, searchW, searchH } = point
-      debug(x, y, rectW, rectH, searchW, searchH)
+      // debug(x, y, rectW, rectH, searchW, searchH)
       const searchStyle = {
         width: searchW, height: searchH,
         top: y - searchH / 2, left: x - searchW / 2,
@@ -54,7 +77,10 @@ export default class TrackBoxes extends React.Component {
       return (
         <div className={styles.searchBox} key={index}
           style={searchStyle}>
-          <div className={styles.innerBox} style={innerStyle}/>
+          <Dragable
+            onMove={(e, se) => this._rectMove(e, se, index, point)}
+            onUp={(e, se) => this._dragUp(e, se, index, point)}
+            className={styles.innerBox} style={innerStyle}/>
         </div>
       )
     })

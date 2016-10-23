@@ -67,4 +67,24 @@ export default {
 
     return trackers.slice()
   },
+  UPDATE_TRACKER_POINT(trackers, payload, cytron) {
+    const { currentFrame, currentTracker } = cytron.store.getState().root
+    const trackerIndex = trackers.findIndex(t => t.id === currentTracker)
+    let newTracker = Object.assign({}, trackers[trackerIndex])
+    const frame = newTracker.frames[currentFrame].slice()
+
+    if (!frame[payload.index]) {
+      throw new Error(`invalid index ${payload.index} or target frame length:${frame.length}`)
+    }
+    let props = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
+    /* eslint-disable eqeqeq */
+    props.forEach(key => {
+      if (payload[key] != null)
+        frame[payload.index][key] = payload[key]
+    })
+    // create new object to pass shallowEqual
+    newTracker.frames[currentFrame] = frame
+    trackers[trackerIndex] = newTracker
+    return trackers
+  },
 }

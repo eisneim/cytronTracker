@@ -41,3 +41,10 @@ export function selectTracker(id) {
   }
 }
 
+export function trackerPointMove(x, y, index) {
+  return {
+    type: 'UPDATE_TRACKER_POINT',
+    meta: { ignoreLog: true },
+    payload: { x, y, index },
+  }
+}
