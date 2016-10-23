@@ -5,7 +5,15 @@ export const TrackerTypes = {
   'PLANNAR': 3,
 }
 
+export const MatchAlgorithm = {
+  'SSD': 0,
+  'BRUTAL': 1,
+  'FAST': 2,
+  'SURF': 3,
+  'AKAZE': 4,
+}
+
 export const DefaultTracker = {
-  RECT_SIZE: 50,
-  SEARCH_SIZE: 100,
+  RECT_SIZE: 20,
+  SEARCH_SIZE: 50,
 }

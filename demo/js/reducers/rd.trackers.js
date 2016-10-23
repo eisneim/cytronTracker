@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { TrackerTypes, DefaultTracker } from '../constants'
-let idCount = 0
+let idCount = 1
 
 export default {
   SOME_ACTION(state, payload, cytron) {
@@ -21,7 +21,7 @@ export default {
     const { canvasWidth, canvasHeight } = layout
     const { SEARCH_SIZE, RECT_SIZE } = DefaultTracker
 
-    let frame = []
+    let frame = [], distance = 100
     switch (trackerType) {
     case TrackerTypes.MOTION:
       frame.push({
@@ -31,29 +31,29 @@ export default {
       break
     case TrackerTypes.SCALE_ROTATION:
       frame.push({
-        x: canvasWidth / 2 - 150, y: canvasHeight / 2,
+        x: canvasWidth / 2 - distance, y: canvasHeight / 2,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       frame.push({
-        x: canvasWidth / 2 + 150, y: canvasHeight / 2,
+        x: canvasWidth / 2 + distance, y: canvasHeight / 2,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       break
     case TrackerTypes.PERSPECTIVE: // clockwise
       frame.push({
-        x: canvasWidth / 2 - 150, y: canvasHeight / 2 - 150,
+        x: canvasWidth / 2 - distance, y: canvasHeight / 2 - distance,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       frame.push({
-        x: canvasWidth / 2 + 150, y: canvasHeight / 2 - 150,
+        x: canvasWidth / 2 + distance, y: canvasHeight / 2 - distance,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       frame.push({
-        x: canvasWidth / 2 + 150, y: canvasHeight / 2 + 150,
+        x: canvasWidth / 2 + distance, y: canvasHeight / 2 + distance,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       frame.push({
-        x: canvasWidth / 2 - 150, y: canvasHeight / 2 + 150,
+        x: canvasWidth / 2 - distance, y: canvasHeight / 2 + distance,
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       break

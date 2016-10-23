@@ -9,6 +9,7 @@ import { Icon } from './ui'
 import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
 import { ConnectedTimeline } from './main/Timeline'
 import { ConnectedVideoCanvas } from './main/VideoCanvas'
+import { ConnectedTrackBoxes } from './main/TrackBoxes'
 
 const styles = csjs`
   .controlsWraper {
@@ -56,6 +57,7 @@ export default class Stage extends React.Component {
           >
           <PanelContent style={{ overflow: 'hidden' }}>
             <ConnectedVideoCanvas/>
+            <ConnectedTrackBoxes />
             <FlexRow className={styles.controlsWraper}
               style={{ visibility: duration ? 'visible' : 'hidden' }}>
               <span className={styles.timecode}>
