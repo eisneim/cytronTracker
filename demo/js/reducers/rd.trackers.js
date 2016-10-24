@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { TrackerTypes, DefaultTracker } from '../constants'
 let idCount = 1
+const FRAMEPROPS = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
 
 export default {
   SOME_ACTION(state, payload, cytron) {
@@ -76,9 +77,9 @@ export default {
     if (!frame[payload.index]) {
       throw new Error(`invalid index ${payload.index} or target frame length:${frame.length}`)
     }
-    let props = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
+
     /* eslint-disable eqeqeq */
-    props.forEach(key => {
+    FRAMEPROPS.forEach(key => {
       if (payload[key] != null)
         frame[payload.index][key] = payload[key]
     })
@@ -88,12 +89,28 @@ export default {
     return trackers
   },
 
-  TRACK_BY_FRAME_DONE(trackers, isForward, cytron) {
+  TRACK_POINTS_DONE(trackers, { trackResults, targetFrame, prevFrame }, cytron) {
+    const { currentTracker } = cytron.store.getState().root
+    const trackerIndex = trackers.findIndex(t => t.id === currentTracker)
+    let newTracker = Object.assign({}, trackers[trackerIndex])
+    const prevFrameData = newTracker.frames[prevFrame] // its an array
 
-  },
+    let frame = newTracker.frames[targetFrame] || []
 
-  TRACKING(trackers, isForward, cytron) {
+    trackResults.forEach((result, index) => {
+      let point = frame[index] || Object.assign({}, prevFrameData[index])
+      const { resultX, resultY, x, y } = result
+      // targetFrame should be current frame if track frame by frame
+      debug('offSet:', x - resultX, y - resultY, 'targetFrame', targetFrame)
+      point.x = resultX
+      point.y = resultY
 
+      frame[index] = point
+    })
+
+    newTracker.frames[targetFrame] = frame
+    trackers[trackerIndex] = newTracker
+    return newTracker
   },
 
 }

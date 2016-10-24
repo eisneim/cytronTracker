@@ -14,6 +14,6 @@ export const MatchAlgorithm = {
 }
 
 export const DefaultTracker = {
-  RECT_SIZE: 20,
+  RECT_SIZE: 15,
   SEARCH_SIZE: 50,
 }

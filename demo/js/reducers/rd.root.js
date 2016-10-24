@@ -39,8 +39,8 @@ export default {
   TRACK_BY_FRAME(root, isForward, cytron) {
     const targetFrame = root.currentFrame + (isForward ? 1 : -1)
     root.delayedTrackJob = {
-      from: root.currentFrame,
-      to: targetFrame,
+      prevFrame: root.currentFrame,
+      targetFrame,
     }
 
     return setFrame(root, targetFrame, cytron)

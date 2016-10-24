@@ -74,3 +74,9 @@ export function trackBackward() {
     payload: false,
   }
 }
+export function trackPointsDone(trackResults, targetFrame, prevFrame) {
+  return {
+    type: 'TRACK_POINTS_DONE',
+    payload: { trackResults, targetFrame, prevFrame },
+  }
+}

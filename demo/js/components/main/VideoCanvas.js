@@ -46,7 +46,7 @@ export default class VideoCanvas extends React.Component {
     let frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
     // should do the tracking job
     if (this.props.delayedTrackJob) {
-      this.context.cytron.track(prevFrame, frame)
+      this.context.cytron.track(prevFrame, frame, this.props.delayedTrackJob)
     }
     this.dstCtx.putImageData(frame, 0, 0)
 
