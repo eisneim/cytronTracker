@@ -7,7 +7,6 @@ import { makeStore } from './store.js'
 import getApp from './components/App'
 import { setupModuleCss } from 'CSJS'
 
-import { TrackerTypes } from './constants'
 import { rootActions } from './actionCreators'
 
 // import CytronTracker from '../src'
@@ -85,58 +84,45 @@ class CytronTrackerApp {
     })
   }
 
-  track(fData, nextFData, { prevFrame, targetFrame }) {
-    const { root, trackers, layout } = this.store.getState()
-    const { currentTracker } = root
-    const trackerData = trackers.find(t => t.id === currentTracker)
-    const points = trackerData.frames[prevFrame]
-    if (trackerData.type === TrackerTypes.PLANNAR) {
-      debug('should do plannar track, but not supported yet')
-      return
-    }
+  trackPoints(points, patterns, searchAreas, { prevFrame, targetFrame }) {
+    debug('patterns, searchAreas', patterns, searchAreas)
     // trackResult is [{ resultX, resultY }]
-    const trackResults = points.map(point => this.trackPoint(point, fData, nextFData, layout.canvasWidth))
+    const trackResults = points.map((point, index) => this.trackPoint(point, patterns[index], searchAreas[index]))
+    debug('trackResults:', trackResults)
     this.store.dispatch(rootActions.trackPointsDone(trackResults, targetFrame, prevFrame))
   }
 
-  getDataByRect(frameData, x, y, rectW, rectH, width) {
-    let xOffset = Math.floor(rectW / 2)
-    let yOffset = Math.floor(rectH / 2)
-    let patternBeginIndex = (y - yOffset) * width * 4 + (x - xOffset) * 4
-    let patternEndIndex = (y + yOffset) * width * 4 + (x + xOffset) * 4
-    return frameData.data.slice(patternBeginIndex, patternEndIndex)
-  }
-
-  trackPoint({ x, y, rectW, rectH, searchW, searchH }, fData, nextFData, width) {
-
-    let patternData = this.getDataByRect(fData, x, y, rectW, rectH, width)
-    let searchArea = this.getDataByRect(nextFData, x, y, searchW, searchH, width)
-    debug('should be valid data:', patternData.length / 4 === rectW * rectH)
+  trackPoint({ x, y, rectW, rectH, searchW, searchH }, pattern, searchArea) {
+    const isDataValid = pattern.data.length / 4 === rectW * rectH
+    if (!isDataValid) {
+      debug('pattern', pattern.data.length / 4, rectW * rectH, pattern.width, pattern.height)
+      throw new Error('invalid pattern length')
+    }
     // this index is the starting position of the pattern without multiply 4
-    const index = this.ssd(patternData, searchArea, rectW, searchW)
+    const index = this.ssd(pattern.data, searchArea.data, rectW, searchW)
     const searchX = index % searchW + Math.ceil(rectW / 2)
     const searchY = Math.ceil(index / searchW) + Math.ceil(rectH / 2)
 
     // onece we have the index in searchArea, we need find it's center position x,y
     // in the whole nextFData
-    resultX = x + searchX - Math.floor(searchW / 2)
-    resultY = y + searchY - Math.floor(searchH / 2)
+    const resultX = x + searchX - Math.floor(searchW / 2)
+    const resultY = y + searchY - Math.floor(searchH / 2)
     return { resultX, resultY, x, y }
   }
 
-  ssd(pattern, target, pWidth, pHeight, tWidth, tHeight) {
+  ssd(pattern, search, pWidth, pHeight, sWidth, sHeight) {
     let minVal = 9999, index = 0
-    for (var ii = 0; ii < target.length / 4; ii++) {
-      let rowNum = Math.floor(ii / tWidth), colNum = ii % tWidth
-      if (colNum > tWidth - pWidth || rowNum > tHeight - pHeight)
+    for (var ii = 0; ii < pWidth * pHeight; ii++) {
+      let rowNum = Math.floor(ii / sWidth), colNum = ii % sWidth
+      if (colNum > sWidth - pWidth || rowNum > sHeight - pHeight)
         continue
       // calculate the sum of differience
       let sumR = 0, sumG = 0, sumB = 0, sum = 0
-      for (var jj = 0; jj < pattern.length / 4; jj++) {
-        let tIndex = Math.floor(jj / pWidth) * tWidth + ii + jj // rowNumber * tWidth + ii + jj
-        sumR += target[tIndex * 4] - pattern[jj * 4]
-        sumG += target[tIndex * 4 + 1] - pattern[jj * 4 + 1]
-        sumB += target[tIndex * 4 + 2] - pattern[jj * 4 + 2]
+      for (var jj = 0; jj < sWidth * sHeight; jj++) {
+        let tIndex = Math.floor(jj / pWidth) * sWidth + ii + jj // rowNumber * sWidth + ii + jj
+        sumR += search[tIndex * 4] - pattern[jj * 4]
+        sumG += search[tIndex * 4 + 1] - pattern[jj * 4 + 1]
+        sumB += search[tIndex * 4 + 2] - pattern[jj * 4 + 2]
         sum += Math.abs(sumR) + Math.abs(sumG) + Math.abs(sumB)
       }
       minVal = Math.min(minVal, sum)

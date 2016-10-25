@@ -39,15 +39,38 @@ export default class VideoCanvas extends React.Component {
 
   drawCurrentFrame() {
     const { $video } = this.context.cytron
-    const { cWidth, cHeight } = this.props
-    let prevFrame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+    const { cWidth, cHeight, delayedTrackJob } = this.props
+    let frame
+    if (delayedTrackJob) {
+      debug('delayedTrackJob:', this.props.delayedTrackJob)
+      const { root, trackers } = this.context.cytron.store.getState()
+      const { currentTracker } = root
+      const trackerData = trackers.find(t => t.id === currentTracker)
+      const points = trackerData.frames[delayedTrackJob.prevFrame]
+      let patterns = points.map(p => {
+        return this.srcCtx.getImageData(
+          p.x - Math.floor(p.rectW / 2), p.y - Math.floor(p.rectH / 2),
+          p.rectW, p.rectH
+        )
+      })
+      // if (trackerData.type === TrackerTypes.PLANNAR) {
+      //   debug('should do plannar track, but not supported yet')
+      //   return
+      // }
+      this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
+      let searchAreas = points.map(p => {
+        return this.srcCtx.getImageData(
+          p.x - Math.floor(p.searchW / 2), p.y - Math.floor(p.searchH / 2),
+          p.searchW, p.searchH
+        )
+      })
 
-    this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
-    let frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
-    // should do the tracking job
-    if (this.props.delayedTrackJob) {
-      this.context.cytron.track(prevFrame, frame, this.props.delayedTrackJob)
+      this.context.cytron.trackPoints(points, patterns, searchAreas, this.props.delayedTrackJob)
+
+    } else {
+      this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
     }
+    frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
     this.dstCtx.putImageData(frame, 0, 0)
 
   }

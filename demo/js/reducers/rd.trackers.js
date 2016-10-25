@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { TrackerTypes, DefaultTracker } from '../constants'
+const debug = require('debug')('cy:rd.trackers')
 let idCount = 1
 const FRAMEPROPS = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
 
@@ -81,7 +82,7 @@ export default {
     /* eslint-disable eqeqeq */
     FRAMEPROPS.forEach(key => {
       if (payload[key] != null)
-        frame[payload.index][key] = payload[key]
+        frame[payload.index][key] = Math.floor(payload[key]) // decimal number is not alowed!!
     })
     // create new object to pass shallowEqual
     newTracker.frames[currentFrame] = frame
@@ -90,7 +91,8 @@ export default {
   },
 
   TRACK_POINTS_DONE(trackers, { trackResults, targetFrame, prevFrame }, cytron) {
-    const { currentTracker } = cytron.store.getState().root
+    const { root } = cytron.store.getState()
+    const { currentTracker } = root
     const trackerIndex = trackers.findIndex(t => t.id === currentTracker)
     let newTracker = Object.assign({}, trackers[trackerIndex])
     const prevFrameData = newTracker.frames[prevFrame] // its an array
@@ -107,10 +109,10 @@ export default {
 
       frame[index] = point
     })
-
+    root.delayedTrackJob = null
     newTracker.frames[targetFrame] = frame
     trackers[trackerIndex] = newTracker
-    return newTracker
+    return trackers
   },
 
 }

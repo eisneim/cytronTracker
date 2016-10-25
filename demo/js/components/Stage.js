@@ -47,7 +47,7 @@ export default class Stage extends React.Component {
   }
 
   render() {
-    const { layout, currentFrame, duration } = this.props
+    const { layout, currentFrame, duration, trackNextFrame, trackPrevFrame } = this.props
 
     return (
       <div style={{ flex: 1, height: '100%' }}>
@@ -69,8 +69,8 @@ export default class Stage extends React.Component {
               </span>
               <FlexSpan/>
               <IconButton size="lg" name="fast_rewind"/>
-              <IconButton size="lg" name="skip_previous"/>
-              <IconButton size="lg" name="skip_next"/>
+              <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
+              <IconButton size="lg" onClick={trackNextFrame} name="skip_next"/>
               <IconButton size="lg" name="fast_forward"/>
               <FlexSpan/>
             </FlexRow>
