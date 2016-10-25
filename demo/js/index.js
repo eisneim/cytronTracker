@@ -101,13 +101,13 @@ class CytronTrackerApp {
     // this index is the starting position of the pattern without multiply 4
     const index = this.ssd(pattern.data, searchArea.data, rectW, rectH, searchW, searchH)
     const searchX = index % searchW + Math.floor(rectW / 2)
-    const searchY = Math.ceil(index / searchW) + Math.floor(rectH / 2)
+    const searchY = Math.floor(index / searchW) + Math.floor(rectH / 2)
 
     // onece we have the index in searchArea, we need find it's center position x,y
     // in the whole nextFData
     const resultX = x + Math.floor(searchW / 2) - searchX
     const resultY = y + Math.floor(searchH / 2) - searchY
-    debug('result index', index, searchX, searchY, 'resultX', resultX, resultY, 'searcW', searchW, searchH)
+    debug('result index', index, 'searchX', searchX, searchY, 'resultX', resultX, resultY, x - resultX, y - resultY)
     return { resultX, resultY, x, y }
   }
 

@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.config.babel.js --debug --progress",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:mocha": "mocha --recursive --compilers js:babel-core/register src/**/*.spec.js",
+    "test:karma": "karma start --single-run",
+    "test:mocha:watch": "npm run test:mocha -- --watch",
+    "test:karma:watch": "npm run test:karma -- no-single-run",
+    "test": "npm run test:karma"
   },
   "keywords": [
     "vfx",
@@ -55,6 +59,7 @@
     "mocha": "^2.4.5",
     "phantomjs-prebuilt": "^2.1.5",
     "url-loader": "^0.5.7",
+    "isparta-loader": "^2.0.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-redux": "^4.4.5",
