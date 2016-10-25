@@ -64,7 +64,10 @@ export default class VideoCanvas extends React.Component {
           p.searchW, p.searchH
         )
       })
-
+      // debug only
+      // let dc1 = patterns[0].data, dc2 = searchAreas[0].data
+      // debug('patterns[0]', dc1[0], dc1[4], dc1[8], dc1[12], dc1[16], dc1[20], dc1[24])
+      // debug('search[0]', dc2[0], dc2[4], dc2[8], dc2[12], dc2[16], dc2[20], dc2[24])
       this.context.cytron.trackPoints(points, patterns, searchAreas, this.props.delayedTrackJob)
 
     } else {

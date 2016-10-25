@@ -99,36 +99,40 @@ class CytronTrackerApp {
       throw new Error('invalid pattern length')
     }
     // this index is the starting position of the pattern without multiply 4
-    const index = this.ssd(pattern.data, searchArea.data, rectW, searchW)
-    const searchX = index % searchW + Math.ceil(rectW / 2)
-    const searchY = Math.ceil(index / searchW) + Math.ceil(rectH / 2)
+    const index = this.ssd(pattern.data, searchArea.data, rectW, rectH, searchW, searchH)
+    const searchX = index % searchW + Math.floor(rectW / 2)
+    const searchY = Math.ceil(index / searchW) + Math.floor(rectH / 2)
 
     // onece we have the index in searchArea, we need find it's center position x,y
     // in the whole nextFData
-    const resultX = x + searchX - Math.floor(searchW / 2)
-    const resultY = y + searchY - Math.floor(searchH / 2)
+    const resultX = x + Math.floor(searchW / 2) - searchX
+    const resultY = y + Math.floor(searchH / 2) - searchY
+    debug('result index', index, searchX, searchY, 'resultX', resultX, resultY, 'searcW', searchW, searchH)
     return { resultX, resultY, x, y }
   }
 
   ssd(pattern, search, pWidth, pHeight, sWidth, sHeight) {
+    // debug('start ssd', pattern, search, pWidth, pHeight, sWidth, sHeight)
     let minVal = 9999, index = 0
-    for (var ii = 0; ii < pWidth * pHeight; ii++) {
+    let eachSum = [] // debug only
+    for (var ii = 0; ii < sWidth * sHeight; ii++) {
       let rowNum = Math.floor(ii / sWidth), colNum = ii % sWidth
       if (colNum > sWidth - pWidth || rowNum > sHeight - pHeight)
         continue
       // calculate the sum of differience
       let sumR = 0, sumG = 0, sumB = 0, sum = 0
-      for (var jj = 0; jj < sWidth * sHeight; jj++) {
-        let tIndex = Math.floor(jj / pWidth) * sWidth + ii + jj // rowNumber * sWidth + ii + jj
+      for (var jj = 0; jj < pWidth * pHeight; jj++) {
+        let tIndex = Math.floor(jj / pWidth) * sWidth + ii + jj % pWidth // rowNumber * sWidth + ii + jjX
         sumR += search[tIndex * 4] - pattern[jj * 4]
         sumG += search[tIndex * 4 + 1] - pattern[jj * 4 + 1]
         sumB += search[tIndex * 4 + 2] - pattern[jj * 4 + 2]
-        sum += Math.abs(sumR) + Math.abs(sumG) + Math.abs(sumB)
       }
+      sum += Math.abs(sumR) + Math.abs(sumG) + Math.abs(sumB)
       minVal = Math.min(minVal, sum)
       if (minVal === sum) index = ii // save this index
+      eachSum.push(ii, sum)
     }
-
+    debug('eachSum', eachSum)
     return index
   }
 
