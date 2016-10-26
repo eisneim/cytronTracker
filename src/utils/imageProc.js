@@ -95,7 +95,7 @@ export function Sobel(imgArr, direction = 'X') {
   const h = imgArr.length, w = imgArr[0].length
   let out = zeros(w, h)
   // first calculate Gx
-  if (direction === 'x') {
+  if (direction === 'x' || direction === 'X') {
     // first loop we going to mutilply 1x3 mat,  [1 / 2 / 1]
     for (var ii = 1; ii < h - 1; ii++) { // be careful with "boundry issue"
       for (var jj = 0; jj < w; jj++) {
@@ -124,4 +124,60 @@ export function Sobel(imgArr, direction = 'X') {
   } // end if else
   return out
 }
+/**
+ * 3x3 gaussian blur filter
+ * |1  2  1|
+ * |2  3  2|
+ * |1  2  1|
+ * or float[] matrix = {
+ *    1/16f, 1/8f, 1/16f,
+ *    1/8f, 1/4f, 1/8f,
+ *    1/16f, 1/8f, 1/16f,
+ *};
+ * @param  {Array} imgArr .
+ * @return {Array} image .
+ */
+export function gaussianFilter(imgArr) {
+  let h = imgArr.length, w = imgArr[0].length
+  if (h <= 3 || w <= 3)
+    throw new Error('to apply gaussianFilter, with and height must greater than 3')
+
+  let out = zeros(w, h)
+  for (let ii = 1; ii < h - 1; ii++) {
+    for (let jj = 1; jj < w - 1; jj++) {
+      out[ii][jj] = imgArr[ii - 1][jj - 1] / 16 + imgArr[ii - 1][jj] / 8 + imgArr[ii - 1][jj + 1] / 16 +
+                    imgArr[ii][jj - 1] / 8 + imgArr[ii][jj] / 4 + imgArr[ii][jj + 1] / 8 +
+                    imgArr[ii + 1][jj - 1] / 16 + imgArr[ii + 1][jj] / 8 + imgArr[ii + 1][jj + 1] / 16
+    }
+  }
+  return out
+}
+
+export function nonMaxSupression(imgArr, windowSize, setMax, maxValue = 255) {
+  const h = imgArr.length, w = imgArr[0].length
+  let out = zeros(w, h)
+  let k = Math.floor(windowSize / 2)
+  if (h <= k || w <= k)
+    throw new Error('windowSize too big or width, height of input matrix are too small')
+  if (windowSize < 4)
+    throw new Error('kernel size should be atleast 4')
+
+  for (let ii = k; ii < h - k; ii++) {
+    for (let jj = k; jj < w - k; jj++) {
+      let v = imgArr[ii][jj], isMax = true
+      // go through each unit in square kernel
+      for (let aa = -k; aa <= k && isMax; aa++) {
+        for (let bb = -k; bb <= k; bb++) {
+          if (aa === 0 || bb === 0) continue
+          // compare with it's all neighbors
+          if (imgArr[ii + aa][jj + bb] > v)
+            isMax = false
+        }
+      }
+      if (isMax) out[ii][jj] = setMax ? maxValue : v
+    }
+  }
+  return out
+}
+
 

@@ -57,5 +57,35 @@ describe('Image Process function', () => {
       expect(dy[1][0] - dy[2][0]).to.equal(0)
     })
   })
+
+  describe('gaussianFilter()', () => {
+    let img = [
+      [ 0, 0, 0, 0 ],
+      [ 0, 150, 150, 0 ],
+      [ 0, 150, 150, 0 ],
+      [ 0, 0, 0, 0 ],
+    ]
+    it('blurs out an image', () => {
+      let result = imageProc.gaussianFilter(img)
+      // console.log(result)
+      // [[0, 0, 0, 0], [0, 84.375, 84.375, 0], [0, 84.375, 84.375, 0], [0, 0, 0, 0]]
+      expect(result[1][1]).to.below(150)
+    })
+  })
+
+  it('nonMaxSupression() find local maxium value', () => {
+    let matrix = [
+      [ 1, 200, 1, 1, 1, 20 ],
+      [ 1, 100, 1, 1, 1, 20 ],
+      [ 1, 100, 300, 1, 1, 30 ],
+      [ 1, 100, 1, 1, 1, 30 ],
+      [ 1, 100, 1, 1, 1, 30 ],
+      [ 1, 100, 1, 1, 1, 30 ],
+    ]
+    let result = imageProc.nonMaxSupression(matrix, 4, true, 255)
+    // console.log(result)
+    expect(result[2][2]).to.equal(255)
+    expect(result[1][1]).to.equal(0)
+  })
 })
 
