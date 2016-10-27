@@ -3,6 +3,7 @@ import {
   Sobel,
   zeros,
   gaussianFilter,
+  // boxFilter,
   threshold,
   thresholdType,
   nonMaxSupression,
@@ -29,6 +30,10 @@ export default function HarrisCorner(imgArr, kernelSize = 7, kp = 0.0008, minH =
   let dxdx = gaussianFilter(multiple(dx, dx))
   let dydy = gaussianFilter(multiple(dy, dy))
   let dxdy = gaussianFilter(multiple(dx, dy))
+
+  // let dxdx = boxFilter(multiple(dx, dx))
+  // let dydy = boxFilter(multiple(dy, dy))
+  // let dxdy = boxFilter(multiple(dx, dy))
 
   let H = zeros(w, h)
   for (var ii = 0; ii < h; ii++) {

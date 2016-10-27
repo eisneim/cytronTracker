@@ -18,8 +18,7 @@ export function rgba2gray(imageObj) {
   return gray
 }
 
-export function gray2rgba(grayImgArray) {
-  let data = []
+export function gray2rgba(grayImgArray, data = []) {
   let index = 0
   for (var ii = 0; ii < grayImgArray.length; ii++) {
     let row = grayImgArray[ii]
@@ -148,6 +147,24 @@ export function gaussianFilter(imgArr) {
       out[ii][jj] = imgArr[ii - 1][jj - 1] / 16 + imgArr[ii - 1][jj] / 8 + imgArr[ii - 1][jj + 1] / 16 +
                     imgArr[ii][jj - 1] / 8 + imgArr[ii][jj] / 4 + imgArr[ii][jj + 1] / 8 +
                     imgArr[ii + 1][jj - 1] / 16 + imgArr[ii + 1][jj] / 8 + imgArr[ii + 1][jj + 1] / 16
+    }
+  }
+  return out
+}
+
+export function boxFilter(imgArr, kernelSize = 3) {
+  let k = Math.floor(kernelSize / 2)
+  let h = imgArr.length, w = imgArr[0].length
+  let out = zeros(w, h)
+  for (let ii = k; ii < h - k; ii++) {
+    for (let jj = k; jj < w - k; jj++) {
+      let sum = 0
+      for (let aa = -k; aa <= k; aa++) {
+        for (let bb = -k; bb <= k; bb++) {
+          sum += imgArr[ii + aa][jj + bb]
+        }
+      }
+      out[ii][jj] = sum / ((k + 1) * (k + 1))
     }
   }
   return out

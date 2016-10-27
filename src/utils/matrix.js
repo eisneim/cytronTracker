@@ -6,7 +6,7 @@ export function add(mat1, mat2) {
   for (let ii = 0; ii < mat1.length; ii++) {
     if (!out[ii]) out[ii] = []
     for (let jj = 0; jj < mat1[0].length; jj++) {
-      out[ii][jj] = mat1[ii][jj] + mat2[ii][jj]
+      out[ii][jj] = Math.floor(mat1[ii][jj] + mat2[ii][jj])
     }
   }
   return out
