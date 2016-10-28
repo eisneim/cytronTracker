@@ -52,7 +52,7 @@
     $blurBtn.addEventListener('click', function() {
       var imageData = ctx.createImageData(w, h)
       var gray = cyTracker.imageProc.rgba2gray(imgObj)
-      var blured = cyTracker.imageProc.boxFilter(gray, 3)
+      var blured = cyTracker.imageProc.gaussianFilter(gray, 3)
       // console.log(blured)
       cyTracker.imageProc.gray2rgba(blured, imageData.data)
       ctx.putImageData(imageData, 0, 0)

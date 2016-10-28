@@ -1,5 +1,7 @@
 window.cyDebug = require('debug')
 const debug = cyDebug('cy:root')
+let jsfeat = require('jsfeat')
+debug('jsfeat', jsfeat)
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'

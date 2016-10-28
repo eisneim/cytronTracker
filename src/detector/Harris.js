@@ -41,8 +41,9 @@ export default function HarrisCorner(imgArr, kernelSize = 7, kp = 0.0008, minH =
       let xx = dxdx[ii][jj],
         yy = dydy[ii][jj],
         xy = dxdy[ii][jj]
-      H[ii][jj] = (xx * yy - xy * xy) * (xx * yy - xy * xy) -
-        kp * (xx + xy) * (xx + xy)
+      // H[ii][jj] = (xx * yy - xy * xy) * (xx * yy - xy * xy) -
+      //   kp * (xx + xy) * (xx + xy)
+      H[ii][jj] = xx * yy - xy * xy - kp * (xx + yy) * (xx + yy)
     }
   }
   H = threshold(H, minH, 255, thresholdType.TO_ZERO)
