@@ -1,13 +1,13 @@
 window.cyDebug = require('debug')
 const debug = cyDebug('cy:root')
-let jsfeat = require('jsfeat')
-debug('jsfeat', jsfeat)
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { makeStore } from './store.js'
 import getApp from './components/App'
 import { setupModuleCss } from 'CSJS'
+// @TODO: i'll try to impliment related algorithm later, for now just use jsfeat
+import * as plannar from './tracker/plannar'
 
 import { rootActions } from './actionCreators'
 
@@ -136,6 +136,11 @@ class CytronTrackerApp {
     }
     debug('eachSum', eachSum)
     return index
+  }
+
+  plannarTrack(pattern, search, trackerData, delayedTrackJob) {
+    plannar.plannarTrack(pattern, search, trackerData, delayedTrackJob)
+    debug('should call plannar track functions')
   }
 
   render() {

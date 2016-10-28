@@ -20,14 +20,14 @@ export default class TrackerSetting extends React.Component {
   constructor() {
     super()
     this.state = {
-      isSR: false, isMotion: true, isPerspective: false,
+      isSR: false, isMotion: true, isPerspective: false, isPlannar: false,
     }
   }
 
   _setOption(type, value) {
     if (this.state[type] && !value) return
     const newState = {
-      isMotion: false, isSR: false, isPerspective: false,
+      isMotion: false, isSR: false, isPerspective: false, isPlannar: false,
     }
     newState[type] = value
     this.setState(newState)
@@ -42,11 +42,11 @@ export default class TrackerSetting extends React.Component {
   }
 
   render() {
-    const { isMotion, isSR, isPerspective } = this.state
+    const { isMotion, isSR, isPerspective, isPlannar } = this.state
     // debug('render: ', isMotion, isSR, isPerspective)
     /* eslint-disable eqeqeq */
     return (
-      <Panel title="Video Source" height={90}>
+      <Panel title="Video Source" height={120}>
         <PanelContent>
           <FlexRow className={styles.optionRow}>
             <CheckBox type="radio" isChecked={isMotion}
@@ -55,6 +55,10 @@ export default class TrackerSetting extends React.Component {
               onChange={ value => this._setOption('isSR', value) }>Rotation & Scale</CheckBox>
             <CheckBox type="radio" isChecked={isPerspective}
               onChange={ value => this._setOption('isPerspective', value) }>Perspective</CheckBox>
+          </FlexRow>
+          <FlexRow className={styles.optionRow}>
+            <CheckBox type="radio" isChecked={isPlannar}
+              onChange={ value => this._setOption('isPlannar', value) }>Plannar</CheckBox>
           </FlexRow>
           <div style={{ paddingLeft: 10 }}>
             <Button size="md" raised

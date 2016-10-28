@@ -24,6 +24,26 @@ export default {
     const { SEARCH_SIZE, RECT_SIZE } = DefaultTracker
 
     let frame = [], distance = 100
+
+    let addFourPoint = frame => {
+      frame.push({
+        x: canvasWidth / 2 - distance, y: canvasHeight / 2 - distance,
+        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
+      })
+      frame.push({
+        x: canvasWidth / 2 + distance, y: canvasHeight / 2 - distance,
+        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
+      })
+      frame.push({
+        x: canvasWidth / 2 + distance, y: canvasHeight / 2 + distance,
+        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
+      })
+      frame.push({
+        x: canvasWidth / 2 - distance, y: canvasHeight / 2 + distance,
+        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
+      })
+    }
+
     switch (trackerType) {
     case TrackerTypes.MOTION:
       frame.push({
@@ -41,26 +61,12 @@ export default {
         rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
       })
       break
-    case TrackerTypes.PERSPECTIVE: // clockwise
-      frame.push({
-        x: canvasWidth / 2 - distance, y: canvasHeight / 2 - distance,
-        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
-      })
-      frame.push({
-        x: canvasWidth / 2 + distance, y: canvasHeight / 2 - distance,
-        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
-      })
-      frame.push({
-        x: canvasWidth / 2 + distance, y: canvasHeight / 2 + distance,
-        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
-      })
-      frame.push({
-        x: canvasWidth / 2 - distance, y: canvasHeight / 2 + distance,
-        rectW: RECT_SIZE, rectH: RECT_SIZE, searchW: SEARCH_SIZE, searchH: SEARCH_SIZE,
-      })
+    case TrackerTypes.PERSPECTIVE : // clockwise
+      addFourPoint(frame)
       break
-    // case TrackerTypes.PLANNAR:
-    // break
+    case TrackerTypes.PLANNAR:
+      addFourPoint(frame)
+      break
     default: break
     }
 

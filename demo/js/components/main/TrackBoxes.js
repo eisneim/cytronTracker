@@ -6,6 +6,8 @@ import csjs from 'CSJS'
 import Dragable from '../_shared/Dragable'
 const debug = require('debug')('cy:TrackBoxes')
 
+import { TrackerTypes } from '../../constants'
+
 const styles = csjs`
   .wraper {
     position: absolute;
@@ -73,6 +75,12 @@ export default class TrackBoxes extends React.Component {
         width: rectW, height: rectH,
         top: (searchH - rectH) / 2, left: (searchW - rectW) / 2,
       }
+      // hide searchbox for plannar tracker
+      if (trackerData.type === TrackerTypes.PLANNAR) {
+        searchStyle.borderColor = 'transparent'
+        innerStyle.borderRadius = '50%'
+      }
+
 
       return (
         <div className={styles.searchBox} key={index}
