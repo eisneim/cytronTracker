@@ -195,11 +195,10 @@ export default class PlannarTracker {
     this.matches = []
     for (let ii = 0; ii < width * height; ii++) {
       this.sCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
-      this.matches[ii] = new MatchT()
     }
 
     this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, 500)
-    this.drawCorners(this.sCorners, searchRect)
+    // this.drawCorners(this.sCorners, searchRect)
     debug('sCorners', this.sCornerCount)
 
     jsfeat.orb.describe(this.sU8Smooth, this.sCorners, this.sCornerCount, this.sDescriptors)
@@ -207,11 +206,22 @@ export default class PlannarTracker {
 
     // now, matching
     this.numMatches = this.matchPattern()
+    this.drawMatches(this.matches, searchRect)
     // this.goodMatches = this.findTransform(this.matches, this.numMatches)
     debug('numMatches', this.numMatches, this.matches)
   }
 
-  drawCorners(corners, { newMinX, newMinY }) {
+  drawMatches(matches, { minX, minY }) {
+    this.ctx.lineWidth = 1
+    this.ctx.strokeStyle = 'green'
+    for (let ii = 0; ii < this.numMatches; ii++) {
+      const { patternIdx } = matches[ii]
+      let { x, y } = this.pCorners[patternIdx]
+      this.drawMarker(x + minX, y + minY)
+    }
+  }
+
+  drawCorner(corners, { newMinX, newMinY }) {
     this.ctx.lineWidth = 1
     this.ctx.strokeStyle = 'green'
     debug('drawCorners:', corners, newMinX, newMinY, 'corners[0].x', corners[0].x)
@@ -240,17 +250,17 @@ export default class PlannarTracker {
   matchPattern() {
     let numMatches = 0
     // let queryDu8 = this.sDescriptors.data
-    let sdi32 = this.sDescriptors.buffer.i32
+    let pdi32 = this.pDescriptors.buffer.i32
 
-    let sdOffset = 0
+    let pdOffset = 0
     let bestDist = 256 // 0x100 => 100000000
     let bestDist2 = 256
     let bestIdx = -1
 
-    for (let qidx = 0; qidx < this.sDescriptors.rows; qidx++) {
-      let pdi32 = this.pDescriptors.buffer.i32
-      let pdOffset = 0
-      for (let pidx = 0; pidx < this.pDescriptors.rows; pidx++) {
+    for (let ppidx = 0; ppidx < this.pDescriptors.rows; ppidx++) {
+      let sdi32 = this.sDescriptors.buffer.i32
+      let sdOffset = 0
+      for (let sidx = 0; sidx < this.sDescriptors.rows; sidx++) {
         let currentDist = 0
         // our descriptor is 32 bytes so we have 8 Integers
         for (let k = 0; k < 8; k++) {
@@ -260,20 +270,21 @@ export default class PlannarTracker {
         if (currentDist < bestDist) {
           bestDist2 = bestDist
           bestDist = currentDist
-          bestIdx = pidx
+          bestIdx = sidx
         } else if (currentDist < bestDist2) {
           bestDist2 = currentDist
         }
 
-        pdOffset += 8// next descriptor
+        sdOffset += 8// next descriptor
       }
       // filter out by some threshold
       if (bestDist < this.options.matchThreshold) {
-        this.matches[numMatches].screenIdx = qidx
-        this.matches[numMatches].patternIdx = bestIdx
+        let mm = this.matches[numMatches] = new MatchT()
+        mm.screenIdx = bestIdx
+        mm.patternIdx = ppidx
         numMatches++
       }
-      sdOffset += 8
+      pdOffset += 8
     }
     return numMatches
   }

@@ -89,7 +89,7 @@ export default class VideoCanvas extends React.Component {
         if (newMaxX > cWidth) newMaxX = cWidth
         if (newMinY < 0) newMinY = 0
         if (newMaxY > cHeight) newMaxY = cHeight
-        const searchRect = { newMaxX, newMaxY, newMinX, newMinY }
+        const searchRect = { newMaxX, newMaxY, newMinX, newMinY, maxX, maxY, minX, minY }
 
         let search = this.srcCtx.getImageData(newMinX, newMinY, newMaxX - newMinX, newMaxY - newMinY)
         this.dstCtx.putImageData(this.srcCtx.getImageData(0, 0, cWidth, cHeight), 0, 0)
