@@ -72,8 +72,8 @@ export default class PlannarTracker {
   }
 
   detect_keypoints(img, corners, maxAllowed) {
-    // var count = jsfeat.yape06.detect(img, corners, 17) // border
-    var count = jsfeat.fast_corners.detect(img, corners, 3)
+    var count = jsfeat.yape06.detect(img, corners, 17) // border
+    // var count = jsfeat.fast_corners.detect(img, corners, 3)
 
     debug('actual keyPoint count:', count)
 
@@ -150,7 +150,7 @@ export default class PlannarTracker {
     // we wll limit to 500 strongest points
     this.pDescriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t)
 
-    jsfeat.imgproc.grayscale(this.pattern.data, 640, 480, this.pU8)
+    jsfeat.imgproc.grayscale(this.pattern.data, width, height, this.pU8)
     jsfeat.imgproc.gaussian_blur(this.pU8, this.pU8Smooth, this.options.blurSize)
 
     // pre allocate for corners
@@ -187,7 +187,7 @@ export default class PlannarTracker {
     // we wll limit to 500 strongest points
     this.sDescriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t)
 
-    jsfeat.imgproc.grayscale(searchImg.data, 640, 480, this.sU8)
+    jsfeat.imgproc.grayscale(searchImg.data, width, height, this.sU8)
     jsfeat.imgproc.gaussian_blur(this.sU8, this.sU8Smooth, this.options.blurSize)
 
     // pre allocate for corners
@@ -199,13 +199,6 @@ export default class PlannarTracker {
     }
 
     this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, 500)
-    // debug only
-    this.ctx.putImageData(searchImg, searchRect.newMinX, searchRect.newMinY)
-    this.ctx.beginPath()
-    this.ctx.moveTo(searchRect.newMinX, searchRect.newMinY + 2)
-    this.ctx.lineTo(searchRect.newMaxX, searchRect.newMaxY + 2)
-    this.ctx.stroke()
-
     this.drawCorners(this.sCorners, searchRect)
     debug('sCorners', this.sCornerCount)
 
@@ -222,9 +215,9 @@ export default class PlannarTracker {
     this.ctx.lineWidth = 1
     this.ctx.strokeStyle = 'green'
     debug('drawCorners:', corners, newMinX, newMinY, 'corners[0].x', corners[0].x)
-    for (let ii = 0; ii < corners.length; ii++) {
-      if (ii > 500) break
-      this.drawMarker(corners[ii].x + newMinX, corners[ii].y + newMinY)
+    for (let ii = 0; ii < this.sCornerCount; ii++) {
+      let { x, y } = corners[ii]
+      this.drawMarker(x + newMinX, y + newMinY)
       // this.drawMarker(corners[ii].x, corners[ii].y)
     }
   }
@@ -245,17 +238,16 @@ export default class PlannarTracker {
   // each on screen point is compared to all pattern points
   // to find the closest match
   matchPattern() {
-    const descriptorCount = this.pDescriptors.rows
     let numMatches = 0
     // let queryDu8 = this.sDescriptors.data
-    let queryU32 = this.sDescriptors.buffer.i32
+    let sdi32 = this.sDescriptors.buffer.i32
 
-    let qdOffset = 0
+    let sdOffset = 0
     let bestDist = 256 // 0x100 => 100000000
     let bestDist2 = 256
     let bestIdx = -1
 
-    for (let qidx = 0; qidx < descriptorCount; qidx++) {
+    for (let qidx = 0; qidx < this.sDescriptors.rows; qidx++) {
       let pdi32 = this.pDescriptors.buffer.i32
       let pdOffset = 0
       for (let pidx = 0; pidx < this.pDescriptors.rows; pidx++) {
@@ -263,7 +255,7 @@ export default class PlannarTracker {
         // our descriptor is 32 bytes so we have 8 Integers
         for (let k = 0; k < 8; k++) {
           currentDist += this.popcnt32(
-            queryU32[qdOffset + k] ^ pdi32[pdOffset + k])
+            sdi32[sdOffset + k] ^ pdi32[pdOffset + k])
         }
         if (currentDist < bestDist) {
           bestDist2 = bestDist
@@ -273,14 +265,15 @@ export default class PlannarTracker {
           bestDist2 = currentDist
         }
 
-        pdOffset += 8
+        pdOffset += 8// next descriptor
       }
       // filter out by some threshold
       if (bestDist < this.options.matchThreshold) {
         this.matches[numMatches].screenIdx = qidx
         this.matches[numMatches].patternIdx = bestIdx
+        numMatches++
       }
-      qdOffset += 8
+      sdOffset += 8
     }
     return numMatches
   }
