@@ -7,7 +7,7 @@ import { makeStore } from './store.js'
 import getApp from './components/App'
 import { setupModuleCss } from 'CSJS'
 // @TODO: i'll try to impliment related algorithm later, for now just use jsfeat
-import * as plannar from './tracker/plannar'
+import PlannarTracker from './tracker/plannar'
 
 import { rootActions } from './actionCreators'
 
@@ -25,6 +25,8 @@ class CytronTrackerApp {
     Object.assign(this.config, config)
     // stores the video element in memory
     this.$video = null
+    // pair up tracker in state and actual tracker instance
+    this.trackerMap = {} // id: PlannarTracker / Other tracker class
 
     this.store = makeStore(this)
   }
@@ -138,9 +140,23 @@ class CytronTrackerApp {
     return index
   }
 
-  plannarTrack(pattern, search, trackerData, delayedTrackJob) {
-    plannar.plannarTrack(pattern, search, trackerData, delayedTrackJob)
+  setPlannarPattern(trackerId, pattern) {
+    debug('register plannar patter')
+    this.trackerMap[trackerId] = new PlannarTracker(pattern, this.drawCtx)
+  }
+
+  plannarTrack(search, trackerData, delayedTrackJob, searchRect) {
+    let pTracker = this.trackerMap[trackerData.id]
+    if (!pTracker)
+      throw new Error('pattern not registered for tracker: ' + trackerData.id)
+
+    pTracker.processFrame(search, trackerData, delayedTrackJob, searchRect)
     debug('should call plannar track functions')
+  }
+
+  setDrawCtx(v) {
+    debug('set cytron canvas draw context')
+    this.drawCtx = v
   }
 
   render() {

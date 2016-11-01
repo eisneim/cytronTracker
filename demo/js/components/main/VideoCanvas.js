@@ -37,26 +37,29 @@ export default class VideoCanvas extends React.Component {
     this.$dstCanvas = findDOMNode(this.refs.dstCanvas)
     this.srcCtx = this.$srcCanvas.getContext('2d')
     this.dstCtx = this.$dstCanvas.getContext('2d')
+    this.context.cytron.setDrawCtx(this.dstCtx)
   }
 
   drawCurrentFrame() {
-    const { $video } = this.context.cytron
+    debug('drawCurrentFrame call')
+    const { cytron } = this.context
+    const { $video } = cytron
     const { cWidth, cHeight, delayedTrackJob } = this.props
     let frame
     if (delayedTrackJob) {
       delayedTrackJob.cWidth = cWidth
       delayedTrackJob.cHeight = cHeight
       debug('delayedTrackJob:', this.props.delayedTrackJob)
-      const { root, trackers } = this.context.cytron.store.getState()
+      const { root, trackers } = cytron.store.getState()
       const { currentTracker } = root
       const trackerData = trackers.find(t => t.id === currentTracker)
       const points = trackerData.frames[delayedTrackJob.prevFrame]
 
       if (trackerData.type === TrackerTypes.PLANNAR) {
         // get pattern find largest x,y and smallest x,y to define a rectangel
-        var maxX = points[0].x,
+        var maxX = Math.floor(points[0].x),
           minX = maxX,
-          maxY = points[0].y,
+          maxY = Math.floor(points[0].y),
           minY = maxY
 
         points.forEach(({ x, y }) => {
@@ -65,8 +68,13 @@ export default class VideoCanvas extends React.Component {
           if (y > maxY) maxY = y
           if (y < minY) minY = y
         })
+
         debug(`maxX ${maxX}, maxY ${maxY}, minX ${minX}, minY ${minY}`)
-        let pattern = this.srcCtx.getImageData(minX, minY, maxX - minX, maxY - minY)
+        if (!cytron.trackerMap[trackerData.id]) {
+          let pattern = this.srcCtx.getImageData(minX, minY, maxX - minX, maxY - minY)
+          cytron.setPlannarPattern(trackerData.id, pattern)
+        }
+
         // draw newFrame
         this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
         // get search area
@@ -81,9 +89,11 @@ export default class VideoCanvas extends React.Component {
         if (newMaxX > cWidth) newMaxX = cWidth
         if (newMinY < 0) newMinY = 0
         if (newMaxY > cHeight) newMaxY = cHeight
+        const searchRect = { newMaxX, newMaxY, newMinX, newMinY }
 
         let search = this.srcCtx.getImageData(newMinX, newMinY, newMaxX - newMinX, newMaxY - newMinY)
-        this.context.cytron.plannarTrack(pattern, search, trackerData, delayedTrackJob)
+        this.dstCtx.putImageData(this.srcCtx.getImageData(0, 0, cWidth, cHeight), 0, 0)
+        cytron.plannarTrack(search, trackerData, delayedTrackJob, searchRect)
 
       } else {
         let patterns = points.map(p => {
@@ -104,14 +114,15 @@ export default class VideoCanvas extends React.Component {
         // let dc1 = patterns[0].data, dc2 = searchAreas[0].data
         // debug('patterns[0]', dc1[0], dc1[4], dc1[8], dc1[12], dc1[16], dc1[20], dc1[24])
         // debug('search[0]', dc2[0], dc2[4], dc2[8], dc2[12], dc2[16], dc2[20], dc2[24])
-        this.context.cytron.trackPoints(points, patterns, searchAreas, this.props.delayedTrackJob)
+        cytron.trackPoints(points, patterns, searchAreas, this.props.delayedTrackJob)
+        this.dstCtx.putImageData(this.srcCtx.getImageData(0, 0, cWidth, cHeight), 0, 0)
       } // isPlannar
     } else {
       this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
+      frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+      debug('draw current frame to dest canvas')
+      this.dstCtx.putImageData(frame, 0, 0)
     }
-    frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
-    this.dstCtx.putImageData(frame, 0, 0)
-
   }
 
   componentWillReceiveProps(newProps) {

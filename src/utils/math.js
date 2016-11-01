@@ -11,7 +11,7 @@ export function isInPolygon(point, vs) {
     var xj = vs[j][0],
       yj = vs[j][1]
 
-    var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+    var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
     if (intersect) inside = !inside
   }
 
