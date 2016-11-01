@@ -3,8 +3,8 @@ import jsfeat from 'jsfeat'
 const debug = require('debug')('cy:plannar')
 
 const MatchT = (function matchType() {
-  function MatchT(screenIdx = 0, patternLev = 0, patternIdx = 0, distance = 0) {
-    Object.assign(this, { screenIdx, patternLev, patternIdx, distance })
+  function MatchT(searchIdx = 0, patternLev = 0, patternIdx = 0, distance = 0) {
+    Object.assign(this, { searchIdx, patternLev, patternIdx, distance })
   }
   return MatchT
 })()
@@ -105,7 +105,7 @@ export default class PlannarTracker {
     // construct correspondences
     for (var i = 0; i < count; ++i) {
       var m = matches[i]
-      var s_kp = this.sCorners[m.screenIdx]
+      var s_kp = this.sCorners[m.searchIdx]
       var p_kp = this.pCorners[m.pattern_lev][m.patternIdx]
       pattern_xy[i] = {
         x: p_kp.x,
@@ -253,13 +253,13 @@ export default class PlannarTracker {
     let pdi32 = this.pDescriptors.buffer.i32
 
     let pdOffset = 0
-    let bestDist = 256 // 0x100 => 100000000
-    let bestDist2 = 256
     let bestIdx = -1
 
     for (let ppidx = 0; ppidx < this.pDescriptors.rows; ppidx++) {
       let sdi32 = this.sDescriptors.buffer.i32
       let sdOffset = 0
+      let bestDist = 256 // 0x100 => 100000000 this is the max value
+
       for (let sidx = 0; sidx < this.sDescriptors.rows; sidx++) {
         let currentDist = 0
         // our descriptor is 32 bytes so we have 8 Integers
@@ -268,19 +268,18 @@ export default class PlannarTracker {
             sdi32[sdOffset + k] ^ pdi32[pdOffset + k])
         }
         if (currentDist < bestDist) {
-          bestDist2 = bestDist
+          // save the new smallest
           bestDist = currentDist
           bestIdx = sidx
-        } else if (currentDist < bestDist2) {
-          bestDist2 = currentDist
         }
 
         sdOffset += 8// next descriptor
-      }
+      } // for loop
+
       // filter out by some threshold
       if (bestDist < this.options.matchThreshold) {
         let mm = this.matches[numMatches] = new MatchT()
-        mm.screenIdx = bestIdx
+        mm.searchIdx = bestIdx
         mm.patternIdx = ppidx
         numMatches++
       }
