@@ -109,12 +109,18 @@ export default {
       let point = frame[index] || Object.assign({}, prevFrameData[index])
       const { resultX, resultY, x, y } = result
       // targetFrame should be current frame if track frame by frame
-      debug('offSet:', x - resultX, y - resultY, 'targetFrame', targetFrame)
-      point.x = resultX
-      point.y = resultY
-
+      if (newTracker.type === TrackerTypes.PLANNAR) {
+        // the result of PLANNAR track is differient, it only contains x, y
+        point.x = Math.round(x) - 80
+        point.y = Math.round(y) - 80
+      } else {
+        debug('offSet:', x - resultX, y - resultY, 'targetFrame', targetFrame)
+        point.x = resultX
+        point.y = resultY
+      }
       frame[index] = point
     })
+
     root.delayedTrackJob = null
     newTracker.frames[targetFrame] = frame
     trackers[trackerIndex] = newTracker

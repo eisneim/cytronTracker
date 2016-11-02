@@ -7,6 +7,8 @@ const debug = require('debug')('cy:VideoCanvas')
 
 import { TrackerTypes } from '../../constants'
 
+const SEARCH_MARGIN = 80
+
 const styles = csjs`
   .wraper {
     position: absolute;
@@ -72,18 +74,17 @@ export default class VideoCanvas extends React.Component {
         debug(`maxX ${maxX}, maxY ${maxY}, minX ${minX}, minY ${minY}`)
         if (!cytron.trackerMap[trackerData.id]) {
           let pattern = this.srcCtx.getImageData(minX, minY, maxX - minX, maxY - minY)
-          cytron.setPlannarPattern(trackerData.id, pattern)
+          cytron.setPlannarPattern(trackerData.id, pattern, trackerData)
         }
 
         // draw newFrame
         this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
         // get search area
         // @TODO: refactor extend area for plannar track
-        let margin = 50,
-          newMinX = minX - margin,
-          newMaxX = maxX + margin,
-          newMinY = minY - margin,
-          newMaxY = maxY + margin
+        let newMinX = minX - SEARCH_MARGIN,
+          newMaxX = maxX + SEARCH_MARGIN,
+          newMinY = minY - SEARCH_MARGIN,
+          newMaxY = maxY + SEARCH_MARGIN
 
         if (newMinX < 0) newMinX = 0
         if (newMaxX > cWidth) newMaxX = cWidth

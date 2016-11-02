@@ -140,9 +140,9 @@ class CytronTrackerApp {
     return index
   }
 
-  setPlannarPattern(trackerId, pattern) {
+  setPlannarPattern(trackerId, pattern, trackerData) {
     debug('register plannar patter')
-    this.trackerMap[trackerId] = new PlannarTracker(pattern, this.drawCtx)
+    this.trackerMap[trackerId] = new PlannarTracker(pattern, this.drawCtx, trackerData)
   }
 
   plannarTrack(search, trackerData, delayedTrackJob, searchRect) {
@@ -150,8 +150,9 @@ class CytronTrackerApp {
     if (!pTracker)
       throw new Error('pattern not registered for tracker: ' + trackerData.id)
 
-    pTracker.processFrame(search, trackerData, delayedTrackJob, searchRect)
-    debug('should call plannar track functions')
+    let newPoints = pTracker.processFrame(search, trackerData, delayedTrackJob, searchRect)
+    let { targetFrame, prevFrame } = delayedTrackJob
+    this.store.dispatch(rootActions.trackPointsDone(newPoints, targetFrame, prevFrame))
   }
 
   setDrawCtx(v) {

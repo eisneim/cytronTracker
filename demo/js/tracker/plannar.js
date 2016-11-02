@@ -11,7 +11,8 @@ const MatchT = (function matchType() {
 
 export default class PlannarTracker {
 
-  constructor(patternImg, ctx) {
+  constructor(patternImg, ctx, startTrackerData) {
+    this.startTrackerData = startTrackerData
     this.ctx = ctx
     this.options = {
       blurSize: 5,
@@ -20,6 +21,7 @@ export default class PlannarTracker {
       matchThreshold: 48,
       numTrainLevels: 4,
       fastThreshold: 20,
+      MAX_CORNER: 600,
     }
     this.MARKER_SIZE = 4
     // central difference using image moments to find dominant orientation
@@ -28,10 +30,6 @@ export default class PlannarTracker {
     jsfeat.yape06.laplacian_threshold = this.options.lapThres | 0
     jsfeat.yape06.min_eigen_value_threshold = this.options.eigenThres | 0
     jsfeat.fast_corners.set_threshold(this.options.fastThreshold)
-
-    // transform matrix
-    this.homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t)
-    this.match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t)
 
     this.pattern = patternImg // canvas imageData object
     this.processPattern()
@@ -91,64 +89,13 @@ export default class PlannarTracker {
     return count
   }
 
-  // estimate homography transform between matched points
-  findTransform(matches, count) {
-    // motion kernel
-    var mm_kernel = jsfeat.motion_model.homography2d()
-    // ransac params
-    var num_model_points = 4
-    var reproj_threshold = 3
-    var ransac_param = new jsfeat.ransac_params_t(num_model_points,
-        reproj_threshold, 0.5, 0.99)
-    var pattern_xy = []
-    var screen_xy = []
-    // construct correspondences
-    for (var i = 0; i < count; ++i) {
-      var m = matches[i]
-      var s_kp = this.sCorners[m.searchIdx]
-      var p_kp = this.pCorners[m.pattern_lev][m.patternIdx]
-      pattern_xy[i] = {
-        x: p_kp.x,
-        y: p_kp.y,
-      }
-      screen_xy[i] = {
-        x: s_kp.x,
-        y: s_kp.y,
-      }
-    }
-
-    // estimate motion
-    var ok = false
-    ok = jsfeat.motion_estimator.ransac(ransac_param, mm_kernel,
-      pattern_xy, screen_xy, count, homo3x3, match_mask, 1000)
-
-    // extract good matches and re-estimate
-    var good_cnt = 0
-    if (ok) {
-      for (let i = 0; i < count; ++i) {
-        if (match_mask.data[i]) {
-          pattern_xy[good_cnt].x = pattern_xy[i].x
-          pattern_xy[good_cnt].y = pattern_xy[i].y
-          screen_xy[good_cnt].x = screen_xy[i].x
-          screen_xy[good_cnt].y = screen_xy[i].y
-          good_cnt++
-        }
-      }
-      // run kernel directly with inliers only
-      mm_kernel.run(pattern_xy, screen_xy, homo3x3, good_cnt)
-    } else {
-      jsfeat.matmath.identity_3x3(homo3x3, 1.0)
-    }
-
-    return good_cnt
-  }
   // @TODO: recator those steps to become a function shared with tick function.
   processPattern() {
     const { width, height } = this.pattern
     this.pU8 = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t)
     this.pU8Smooth = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t)
-    // we wll limit to 500 strongest points
-    this.pDescriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t)
+    // we wll limit to this.options.MAX_CORNER strongest points
+    this.pDescriptors = new jsfeat.matrix_t(32, this.options.MAX_CORNER, jsfeat.U8_t | jsfeat.C1_t)
 
     jsfeat.imgproc.grayscale(this.pattern.data, width, height, this.pU8)
     jsfeat.imgproc.gaussian_blur(this.pU8, this.pU8Smooth, this.options.blurSize)
@@ -159,7 +106,7 @@ export default class PlannarTracker {
       this.pCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
     }
 
-    this.pCornerCount = this.detect_keypoints(this.pU8Smooth, this.pCorners, 500)
+    this.pCornerCount = this.detect_keypoints(this.pU8Smooth, this.pCorners, this.options.MAX_CORNER)
     debug('pCorners', this.pCornerCount)
 
     jsfeat.orb.describe(this.pU8Smooth, this.pCorners, this.pCornerCount, this.pDescriptors)
@@ -171,9 +118,10 @@ export default class PlannarTracker {
     // }
   }
 
-  updatePattern(patternImg) {
+  updatePattern(patternImg, startTrackerData) {
     debug('udpate patternImg')
     this.pattern = patternImg
+    this.startTrackerData = startTrackerData
     this.processPattern()
   }
 
@@ -184,8 +132,8 @@ export default class PlannarTracker {
     const { width, height } = searchImg
     this.sU8 = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t)
     this.sU8Smooth = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t)
-    // we wll limit to 500 strongest points
-    this.sDescriptors = new jsfeat.matrix_t(32, 500, jsfeat.U8_t | jsfeat.C1_t)
+    // we wll limit to this.options.MAX_CORNER strongest points
+    this.sDescriptors = new jsfeat.matrix_t(32, this.options.MAX_CORNER, jsfeat.U8_t | jsfeat.C1_t)
 
     jsfeat.imgproc.grayscale(searchImg.data, width, height, this.sU8)
     jsfeat.imgproc.gaussian_blur(this.sU8, this.sU8Smooth, this.options.blurSize)
@@ -197,7 +145,7 @@ export default class PlannarTracker {
       this.sCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
     }
 
-    this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, 500)
+    this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, this.options.MAX_CORNER)
     // this.drawCorners(this.sCorners, searchRect)
     debug('sCorners', this.sCornerCount)
 
@@ -207,8 +155,19 @@ export default class PlannarTracker {
     // now, matching
     this.numMatches = this.matchPattern()
     this.drawMatches(this.matches, searchRect)
-    // this.goodMatches = this.findTransform(this.matches, this.numMatches)
     debug('numMatches', this.numMatches, this.matches)
+
+    // transform matrix
+    let homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t | jsfeat.C1_t)
+    let matchMask = new jsfeat.matrix_t(this.numMatches, 1, jsfeat.U8_t | jsfeat.C1_t)
+
+    let { goodCnt } = this.findTransform(this.matches, this.numMatches, homo3x3, matchMask)
+    debug('goodCnt', goodCnt, homo3x3, matchMask)
+    // debug('patternXy, searchXy ', patternXy, searchXy)
+    let points = trackerData.frames[delayedTrackJob.prevFrame]
+    let newPoints = this.transformPoints(points, homo3x3.data)
+    debug('newPoints, points', newPoints, points)
+    return newPoints
   }
 
   drawMatches(matches, { minX, minY }) {
@@ -312,5 +271,81 @@ export default class PlannarTracker {
     i = ((i + (i >> 4)) & 0x0F0F0F0F)
     return (i * (0x01010101)) >> 24
   }
+
+  // estimate homography transform between matched points
+  findTransform(matches, count, homo3x3, matchMask) {
+    // motion kernel
+    var homoKernel = new jsfeat.motion_model.homography2d()
+    // ransac params
+    var num_model_points = 4 // minimum points to estimate motion
+    var reproj_threshold = 3 // max error to classify as inlier
+    var eps = 0.5 // max outliers ratio
+    var prob = 0.99 // probability of success
+    var maxIters = 1000
+    var ransacParam = new jsfeat.ransac_params_t(num_model_points,
+        reproj_threshold, eps, prob)
+
+    var patternXy = []
+    var searchXy = []
+    // construct correspondences
+    for (var ii = 0; ii < count; ++ii) {
+      var m = matches[ii]
+      var skp = this.sCorners[m.searchIdx]
+      var pkp = this.pCorners[m.patternIdx]
+      patternXy[ii] = {
+        x: pkp.x,
+        y: pkp.y,
+      }
+      searchXy[ii] = {
+        x: skp.x,
+        y: skp.y,
+      }
+    }
+
+    // estimate motion
+    let ok = false
+    ok = jsfeat.motion_estimator.ransac(ransacParam, homoKernel,
+      patternXy, searchXy, count, homo3x3, matchMask, maxIters)
+
+    // extract good matches and re-estimate
+    var goodCnt = 0
+    if (ok) {
+      for (let i = 0; i < count; ++i) {
+        // only keep good matches
+        if (matchMask.data[i]) {
+          patternXy[goodCnt].x = patternXy[i].x
+          patternXy[goodCnt].y = patternXy[i].y
+          searchXy[goodCnt].x = searchXy[i].x
+          searchXy[goodCnt].y = searchXy[i].y
+          goodCnt++
+        }
+      }
+      // run kernel directly with inliers only
+      homoKernel.run(patternXy, searchXy, homo3x3, goodCnt)
+    } else {
+      jsfeat.matmath.identity_3x3(homo3x3, 1.0)
+      debug('ransac not ok,homo3x3 going to be an identity matrix', homo3x3)
+    }
+    debug('is ransac ok:', ok, 'goodCnt', goodCnt)
+    return { goodCnt, patternXy, searchXy }
+  }
+  /* project/transform rectangle corners with 3x3 homography Matrix
+  | m0 m1 m2 |   | x |
+  | m3 m4 m5 | x | y | => get x and y
+  | m6 m7 m8 |   | 1 |
+  */
+  transformPoints(points, M) {
+    let newPoints = []
+    for (let ii = 0; ii < points.length; ii++) {
+      let px = M[0] * points[ii].x + M[1] * points[ii].y + M[2]
+      let py = M[3] * points[ii].x + M[4] * points[ii].y + M[5]
+      let pz = M[6] * points[ii].x + M[7] * points[ii].y + M[8]
+      newPoints[ii] = {
+        x: px / pz, y: py / pz,
+      }
+    }
+    return newPoints
+  } // transformPoints
+
 }
 
