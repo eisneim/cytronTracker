@@ -169,7 +169,6 @@ export default class PlannarTracker {
 
     // now, matching
     this.numMatches = this.matchPattern()
-    this.drawCorner(this.pCorners, this.pCornerCount)
     this.drawMatches(this.matches)
     debug('numMatches', this.numMatches, this.matches)
 
@@ -189,8 +188,8 @@ export default class PlannarTracker {
     this.ctx.lineWidth = 1
     this.ctx.strokeStyle = 'green'
     for (let ii = 0; ii < this.numMatches; ii++) {
-      const { patternIdx } = matches[ii]
-      let { x, y } = this.pCorners[patternIdx]
+      const { searchIdx } = matches[ii]
+      let { x, y } = this.sCorners[searchIdx]
       this.drawMarker(x, y)
     }
   }
