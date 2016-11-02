@@ -97,6 +97,7 @@ export default {
   },
 
   TRACK_POINTS_DONE(trackers, { trackResults, targetFrame, prevFrame }, cytron) {
+    // @TODO: should refactor these steps into a function
     const { root } = cytron.store.getState()
     const { currentTracker } = root
     const trackerIndex = trackers.findIndex(t => t.id === currentTracker)
@@ -105,21 +106,28 @@ export default {
 
     let frame = newTracker.frames[targetFrame] || []
 
-    trackResults.forEach((result, index) => {
-      let point = frame[index] || Object.assign({}, prevFrameData[index])
-      const { resultX, resultY, x, y } = result
-      // targetFrame should be current frame if track frame by frame
-      if (newTracker.type === TrackerTypes.PLANNAR) {
-        // the result of PLANNAR track is differient, it only contains x, y
-        point.x = Math.round(x) - 80
-        point.y = Math.round(y) - 80
-      } else {
-        debug('offSet:', x - resultX, y - resultY, 'targetFrame', targetFrame)
+    if (newTracker.type === TrackerTypes.PLANNAR) {
+      let { newPoints, homo3x3 } = trackResults
+      // save trasform matrix
+      if (!newTracker.mtxs) newTracker.mtxs = []
+      newTracker.mtxs[targetFrame] = homo3x3
+
+      newPoints.forEach((result, index) => {
+        let point = frame[index] || Object.assign({}, prevFrameData[index])
+        point.x = Math.round(result.x)
+        point.y = Math.round(result.y)
+        frame[index] = point
+      })
+    } else {
+      trackResults.forEach((result, index) => {
+        let point = frame[index] || Object.assign({}, prevFrameData[index])
+        const { resultX, resultY, x, y } = result
+        // targetFrame should be current frame if track frame by frame
         point.x = resultX
         point.y = resultY
-      }
-      frame[index] = point
-    })
+        frame[index] = point
+      })
+    }
 
     root.delayedTrackJob = null
     newTracker.frames[targetFrame] = frame

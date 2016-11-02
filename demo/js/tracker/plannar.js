@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 import jsfeat from 'jsfeat'
+import { isInPolygon } from '../../../src/utils/math'
+
 const debug = require('debug')('cy:plannar')
 
 const MatchT = (function matchType() {
@@ -11,8 +13,8 @@ const MatchT = (function matchType() {
 
 export default class PlannarTracker {
 
-  constructor(patternImg, ctx, startTrackerData) {
-    this.startTrackerData = startTrackerData
+  constructor(patternImg, ctx, patternPoints) {
+    this.patternPoints = patternPoints
     this.ctx = ctx
     this.options = {
       blurSize: 5,
@@ -69,11 +71,26 @@ export default class PlannarTracker {
     return Math.atan2(m_01, m_10)
   }
 
-  detect_keypoints(img, corners, maxAllowed) {
+  detect_keypoints(img, corners, maxAllowed, maskPoints) {
     var count = jsfeat.yape06.detect(img, corners, 17) // border
     // var count = jsfeat.fast_corners.detect(img, corners, 3)
-
     debug('actual keyPoint count:', count)
+    // we need to maks out coners that is not in mask zone
+    if (maskPoints) {
+      let inlierCount = 0
+      let mPoints = maskPoints.map(p => [ p.x, p.y ])
+      for (let ii = 0; ii < count; ii++) {
+        let corner = corners[ii]
+        let ok = isInPolygon([ corner.x, corner.y ], mPoints)
+        if (ok) {
+          inlierCount++
+          // debug('ok corner:', corner)
+          corners[inlierCount] = corner
+        }
+      }
+      debug('masked out corners:', count - inlierCount)
+      count = inlierCount
+    }
 
     // sort by score and reduce the count if needed
     if (count > maxAllowed) {
@@ -106,7 +123,7 @@ export default class PlannarTracker {
       this.pCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
     }
 
-    this.pCornerCount = this.detect_keypoints(this.pU8Smooth, this.pCorners, this.options.MAX_CORNER)
+    this.pCornerCount = this.detect_keypoints(this.pU8Smooth, this.pCorners, this.options.MAX_CORNER, this.patternPoints)
     debug('pCorners', this.pCornerCount)
 
     jsfeat.orb.describe(this.pU8Smooth, this.pCorners, this.pCornerCount, this.pDescriptors)
@@ -125,9 +142,7 @@ export default class PlannarTracker {
     this.processPattern()
   }
 
-  processFrame(searchImg, trackerData, delayedTrackJob, searchRect) {
-    // this.trackerData = trackerData
-    // this.searchRect = searchRect
+  processFrame(searchImg, trackerData, delayedTrackJob) {
     debug('shoudl process frame', trackerData, delayedTrackJob)
     const { width, height } = searchImg
     this.sU8 = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t)
@@ -146,7 +161,7 @@ export default class PlannarTracker {
     }
 
     this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, this.options.MAX_CORNER)
-    // this.drawCorners(this.sCorners, searchRect)
+    // this.drawCorners(this.sCorners)
     debug('sCorners', this.sCornerCount)
 
     jsfeat.orb.describe(this.sU8Smooth, this.sCorners, this.sCornerCount, this.sDescriptors)
@@ -154,7 +169,8 @@ export default class PlannarTracker {
 
     // now, matching
     this.numMatches = this.matchPattern()
-    this.drawMatches(this.matches, searchRect)
+    this.drawCorner(this.pCorners, this.pCornerCount)
+    this.drawMatches(this.matches)
     debug('numMatches', this.numMatches, this.matches)
 
     // transform matrix
@@ -164,29 +180,27 @@ export default class PlannarTracker {
     let { goodCnt } = this.findTransform(this.matches, this.numMatches, homo3x3, matchMask)
     debug('goodCnt', goodCnt, homo3x3, matchMask)
     // debug('patternXy, searchXy ', patternXy, searchXy)
-    let points = trackerData.frames[delayedTrackJob.prevFrame]
-    let newPoints = this.transformPoints(points, homo3x3.data)
-    debug('newPoints, points', newPoints, points)
-    return newPoints
+    let newPoints = this.transformPoints(this.patternPoints, homo3x3.data)
+    debug('newPoints, points', newPoints)
+    return { newPoints, homo3x3 }
   }
 
-  drawMatches(matches, { minX, minY }) {
+  drawMatches(matches) {
     this.ctx.lineWidth = 1
     this.ctx.strokeStyle = 'green'
     for (let ii = 0; ii < this.numMatches; ii++) {
       const { patternIdx } = matches[ii]
       let { x, y } = this.pCorners[patternIdx]
-      this.drawMarker(x + minX, y + minY)
+      this.drawMarker(x, y)
     }
   }
 
-  drawCorner(corners, { newMinX, newMinY }) {
+  drawCorner(corners, count) {
     this.ctx.lineWidth = 1
-    this.ctx.strokeStyle = 'green'
-    debug('drawCorners:', corners, newMinX, newMinY, 'corners[0].x', corners[0].x)
-    for (let ii = 0; ii < this.sCornerCount; ii++) {
+    this.ctx.strokeStyle = 'blue'
+    for (let ii = 0; ii < count; ii++) {
       let { x, y } = corners[ii]
-      this.drawMarker(x + newMinX, y + newMinY)
+      this.drawMarker(x, y)
       // this.drawMarker(corners[ii].x, corners[ii].y)
     }
   }

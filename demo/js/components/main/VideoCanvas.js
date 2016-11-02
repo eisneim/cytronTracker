@@ -7,8 +7,6 @@ const debug = require('debug')('cy:VideoCanvas')
 
 import { TrackerTypes } from '../../constants'
 
-const SEARCH_MARGIN = 80
-
 const styles = csjs`
   .wraper {
     position: absolute;
@@ -58,43 +56,17 @@ export default class VideoCanvas extends React.Component {
       const points = trackerData.frames[delayedTrackJob.prevFrame]
 
       if (trackerData.type === TrackerTypes.PLANNAR) {
-        // get pattern find largest x,y and smallest x,y to define a rectangel
-        var maxX = Math.floor(points[0].x),
-          minX = maxX,
-          maxY = Math.floor(points[0].y),
-          minY = maxY
-
-        points.forEach(({ x, y }) => {
-          if (x > maxX) maxX = x
-          if (x < minX) minX = x
-          if (y > maxY) maxY = y
-          if (y < minY) minY = y
-        })
-
-        debug(`maxX ${maxX}, maxY ${maxY}, minX ${minX}, minY ${minY}`)
         if (!cytron.trackerMap[trackerData.id]) {
-          let pattern = this.srcCtx.getImageData(minX, minY, maxX - minX, maxY - minY)
-          cytron.setPlannarPattern(trackerData.id, pattern, trackerData)
+          let pattern = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
+          cytron.setPlannarPattern(trackerData.id, pattern, points)
         }
 
         // draw newFrame
         this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
-        // get search area
-        // @TODO: refactor extend area for plannar track
-        let newMinX = minX - SEARCH_MARGIN,
-          newMaxX = maxX + SEARCH_MARGIN,
-          newMinY = minY - SEARCH_MARGIN,
-          newMaxY = maxY + SEARCH_MARGIN
+        let search = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
 
-        if (newMinX < 0) newMinX = 0
-        if (newMaxX > cWidth) newMaxX = cWidth
-        if (newMinY < 0) newMinY = 0
-        if (newMaxY > cHeight) newMaxY = cHeight
-        const searchRect = { newMaxX, newMaxY, newMinX, newMinY, maxX, maxY, minX, minY }
-
-        let search = this.srcCtx.getImageData(newMinX, newMinY, newMaxX - newMinX, newMaxY - newMinY)
         this.dstCtx.putImageData(this.srcCtx.getImageData(0, 0, cWidth, cHeight), 0, 0)
-        cytron.plannarTrack(search, trackerData, delayedTrackJob, searchRect)
+        cytron.plannarTrack(search, trackerData, delayedTrackJob)
 
       } else {
         let patterns = points.map(p => {
