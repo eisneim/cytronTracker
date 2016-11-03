@@ -92,3 +92,6 @@ export function pause() {
     payload: null,
   }
 }
+export function stopPlaying() {
+  return { type: 'STOP_PLAYING' }
+}

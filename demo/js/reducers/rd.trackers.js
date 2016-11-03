@@ -102,7 +102,7 @@ export default {
     const { currentTracker } = root
     const trackerIndex = trackers.findIndex(t => t.id === currentTracker)
     let newTracker = Object.assign({}, trackers[trackerIndex])
-    const prevFrameData = newTracker.frames[prevFrame] // its an array
+    const prevFrameData = newTracker.frames[prevFrame] || [] // its an array
 
     let frame = newTracker.frames[targetFrame] || []
 

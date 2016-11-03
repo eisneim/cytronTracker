@@ -70,6 +70,16 @@ export default class Stage extends React.Component {
             <ConnectedTrackBoxes />
             <FlexRow className={styles.controlsWraper}
               style={{ visibility: duration ? 'visible' : 'hidden' }}>
+              <IconButton size="lg"
+                onClick={this._handlePlayBack}
+                name={playIcon}/>
+              { currentFrame !== 0 ? <IconButton size="lg" onClick={this.props.stopPlaying} name="replay"/> : null }
+              <FlexSpan/>
+              <IconButton size="lg" name="fast_rewind"/>
+              <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
+              <IconButton size="lg" onClick={trackNextFrame} name="skip_next"/>
+              <IconButton size="lg" name="fast_forward"/>
+              <FlexSpan/>
               <span className={styles.timecode}>
                 <IconButton onClick={this._prevFrame}
                   name="keyboard_arrow_left"/>
@@ -77,15 +87,6 @@ export default class Stage extends React.Component {
                 <IconButton onClick={this._nextFrame}
                   name="keyboard_arrow_right"/>
               </span>
-              <IconButton size="lg"
-                onClick={this._handlePlayBack}
-                name={playIcon}/>
-              <FlexSpan/>
-              <IconButton size="lg" name="fast_rewind"/>
-              <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
-              <IconButton size="lg" onClick={trackNextFrame} name="skip_next"/>
-              <IconButton size="lg" name="fast_forward"/>
-              <FlexSpan/>
             </FlexRow>
             <ConnectedTimeline />
           </PanelContent>

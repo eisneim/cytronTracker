@@ -41,7 +41,7 @@ export default class VideoCanvas extends React.Component {
   }
 
   drawCurrentFrame() {
-    debug('drawCurrentFrame call')
+    debug('drawCurrentFrame call', this.props.currentFrame)
     const { cytron } = this.context
     const { $video } = cytron
     const { cWidth, cHeight, delayedTrackJob } = this.props
@@ -93,7 +93,6 @@ export default class VideoCanvas extends React.Component {
     } else {
       this.srcCtx.drawImage($video, 0, 0, cWidth, cHeight)
       frame = this.srcCtx.getImageData(0, 0, cWidth, cHeight)
-      debug('draw current frame to dest canvas')
       this.dstCtx.putImageData(frame, 0, 0)
     }
   }
