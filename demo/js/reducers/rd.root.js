@@ -54,6 +54,17 @@ export default {
 
     return setFrame(root, targetFrame, cytron)
   },
+  TRACKING(root, isForward, cytron) {
+    root.isTracking = true
+
+    return root
+  },
+  STOP_TRACKING(root) {
+    root.isTracking = false
+
+    return root
+  },
+
   PLAY(root, payload, cytron) {
     resetTimer(cytron)
     let gap = 1000 / root.video.fps / 2

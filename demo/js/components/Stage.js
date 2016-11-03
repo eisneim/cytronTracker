@@ -55,9 +55,31 @@ export default class Stage extends React.Component {
     }
   }
 
+  _handleTracking(isForward) {
+    const { isTracking, stopTracking, startTracking } = this.props
+    if (isTracking) {
+      stopTracking()
+    } else {
+      startTracking(isForward)
+    }
+  }
+
+  $trackControls() {
+    let { trackNextFrame, trackPrevFrame, startTracking } = this.props
+    return (
+      <span>
+        <IconButton size="lg" onClick={() => startTracking(false)} name="fast_rewind"/>
+        <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
+        <IconButton size="lg" onClick={trackNextFrame} name="skip_next"/>
+        <IconButton size="lg" onClick={() => startTracking(true)} name="fast_forward"/>
+      </span>
+    )
+  }
+
   render() {
-    const { layout, currentFrame, duration, trackNextFrame, trackPrevFrame, isPlaying } = this.props
+    const { layout, currentFrame, duration, isPlaying, isTracking, stopTracking } = this.props
     const playIcon = isPlaying ? 'pause_circle_outline' : 'play_circle_outline'
+
 
     return (
       <div style={{ flex: 1, height: '100%' }}>
@@ -75,10 +97,11 @@ export default class Stage extends React.Component {
                 name={playIcon}/>
               { currentFrame !== 0 ? <IconButton size="lg" onClick={this.props.stopPlaying} name="replay"/> : null }
               <FlexSpan/>
-              <IconButton size="lg" name="fast_rewind"/>
-              <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
-              <IconButton size="lg" onClick={trackNextFrame} name="skip_next"/>
-              <IconButton size="lg" name="fast_forward"/>
+              { !isTracking ? this.$trackControls() :
+                <IconButton size="lg"
+                  onClick={stopTracking}
+                  name="pause"/>
+              }
               <FlexSpan/>
               <span className={styles.timecode}>
                 <IconButton onClick={this._prevFrame}
@@ -113,6 +136,7 @@ function mapStateToProps(state) {
     currentTime: root.currentTime,
     duration: root.video.duration,
     isPlaying: root.isPlaying,
+    isTracking: root.isTracking,
   }
 }
 

@@ -62,16 +62,16 @@ export function trackPrevFrame() {
   }
 }
 
-export function trackForward() {
+export function startTracking(isForward) {
   return {
     type: 'TRACKING',
-    payload: true,
+    payload: isForward,
   }
 }
-export function trackBackward() {
+export function stopTracking() {
   return {
-    type: 'TRACKING',
-    payload: false,
+    type: 'STOP_TRACKING',
+    payload: null,
   }
 }
 export function trackPointsDone(trackResults, targetFrame, prevFrame) {
