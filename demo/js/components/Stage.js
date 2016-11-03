@@ -46,8 +46,18 @@ export default class Stage extends React.Component {
     this.props.setFrame(this.props.currentFrame - 1)
   }
 
+  _handlePlayBack = () => {
+    const { play, pause, isPlaying } = this.props
+    if (isPlaying) {
+      pause()
+    } else {
+      play()
+    }
+  }
+
   render() {
-    const { layout, currentFrame, duration, trackNextFrame, trackPrevFrame } = this.props
+    const { layout, currentFrame, duration, trackNextFrame, trackPrevFrame, isPlaying } = this.props
+    const playIcon = isPlaying ? 'pause_circle_outline' : 'play_circle_outline'
 
     return (
       <div style={{ flex: 1, height: '100%' }}>
@@ -67,6 +77,9 @@ export default class Stage extends React.Component {
                 <IconButton onClick={this._nextFrame}
                   name="keyboard_arrow_right"/>
               </span>
+              <IconButton size="lg"
+                onClick={this._handlePlayBack}
+                name={playIcon}/>
               <FlexSpan/>
               <IconButton size="lg" name="fast_rewind"/>
               <IconButton size="lg" onClick={trackPrevFrame} name="skip_previous"/>
@@ -98,6 +111,7 @@ function mapStateToProps(state) {
     currentFrame: root.currentFrame,
     currentTime: root.currentTime,
     duration: root.video.duration,
+    isPlaying: root.isPlaying,
   }
 }
 

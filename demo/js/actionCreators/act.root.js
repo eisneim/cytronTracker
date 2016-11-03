@@ -80,3 +80,15 @@ export function trackPointsDone(trackResults, targetFrame, prevFrame) {
     payload: { trackResults, targetFrame, prevFrame },
   }
 }
+export function play() {
+  return {
+    type: 'PLAY',
+    payload: null,
+  }
+}
+export function pause() {
+  return {
+    type: 'PAUSE',
+    payload: null,
+  }
+}

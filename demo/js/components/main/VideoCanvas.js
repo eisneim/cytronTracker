@@ -100,9 +100,12 @@ export default class VideoCanvas extends React.Component {
 
   componentWillReceiveProps(newProps) {
     // this happens everytime canplay id is chagned
-    const { canplayId } = this.props
+    const { canplayId, currentFrame } = this.props
     if (newProps.canplayId !== canplayId) {
       debug('componentWillReceiveProps draw frame')
+      this.drawCurrentFrame()
+    } else if (newProps.isPlaying && currentFrame !== newProps.isPlaying) {
+      // playing mode
       this.drawCurrentFrame()
     }
   }
@@ -159,6 +162,8 @@ function mapStateToProps(state) {
     duration: root.video.duration,
     canplayId: root.canplayId,
     delayedTrackJob: root.delayedTrackJob,
+    isPlaying: root.isPlaying,
+    isTracking: root.isTracking,
   }
 }
 

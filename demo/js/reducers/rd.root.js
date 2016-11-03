@@ -10,6 +10,14 @@ function setFrame(root, frame, cytron) {
   return root
 }
 
+function resetTimer(cytron) {
+  debug('should reset timer')
+  if (cytron.__timer) {
+    clearInterval(cytron.__timer)
+    cytron.__timer = null
+  }
+}
+
 /* eslint-disable no-unused-vars */
 export default {
   VIDEO_READY(root, $video, cytron) {
@@ -44,5 +52,33 @@ export default {
     }
 
     return setFrame(root, targetFrame, cytron)
+  },
+  PLAY(root, payload, cytron) {
+    resetTimer(cytron)
+    let gap = 1000 / root.video.fps / 2
+    cytron.$video.play()
+    cytron.__timer = setInterval(()=> {
+      const frame = Math.floor(cytron.$video.currentTime * root.video.fps)
+
+      cytron.store.dispatch({
+        type: 'UPDATE_FRAME',
+        meta: { ignoreLog: true },
+        payload: frame,
+      })
+    }, gap)
+    root.isPlaying = true
+    return root
+  },
+  PAUSE(root, payload, cytron) {
+    cytron.$video.pause()
+    resetTimer(cytron)
+    root.isPlaying = false
+    return root
+  },
+  // differient with setFrame, here we don't touch $video
+  UPDATE_FRAME(root, frame, cytron) {
+    root.currentTime = cytron.$video.currentTime
+    root.currentFrame = frame
+    return root
   },
 }
