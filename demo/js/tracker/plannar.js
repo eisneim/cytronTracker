@@ -154,10 +154,12 @@ export default class PlannarTracker {
     jsfeat.imgproc.gaussian_blur(this.sU8, this.sU8Smooth, this.options.blurSize)
 
     // pre allocate for corners
-    this.sCorners = []
-    this.matches = []
-    for (let ii = 0; ii < width * height; ii++) {
-      this.sCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
+    if (!this.sCorners) {
+      this.sCorners = []
+      this.matches = []
+      for (let ii = 0; ii < width * height; ii++) {
+        this.sCorners[ii] = new jsfeat.keypoint_t(0, 0, 0, 0)
+      }
     }
 
     this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, this.options.MAX_CORNER)
