@@ -160,6 +160,10 @@ class CytronTrackerApp {
     this.drawCtx = v
   }
 
+  deleteTracker(id) {
+    this.trackerMap[id] = null
+  }
+
   render() {
     if (this.isRendered) return
     this.isRendered = true

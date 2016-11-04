@@ -40,6 +40,12 @@ export function selectTracker(id) {
     payload: id,
   }
 }
+export function deleteTracker(id) {
+  return {
+    type: 'DELETE_TRACKER',
+    payload: id,
+  }
+}
 
 export function trackerPointMove(x, y, index) {
   return {

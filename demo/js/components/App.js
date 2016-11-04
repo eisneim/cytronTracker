@@ -10,6 +10,8 @@ import { CheckBox } from './ui'
 import { ConnectedVideoSource } from './panels/VideoSource'
 import { ConnectedTrackerSetting } from './panels/TrackerSetting'
 import { ConnectedStage } from './Stage'
+import { ConnectedTrackerList } from './panels/TrackerList'
+
 
 const cxs = csjs`
   .cytronApp {
@@ -36,7 +38,7 @@ const cxs = csjs`
 
 const debug = require('debug')('cy:App')
 
-const toRightTabs = [
+const topRightTabs = [
   { name: 'Resources', key: 'RESOURCES' },
   { name: 'Trackers', key: 'TRACKERS' },
   { name: 'Masks', key: 'MASKS' },
@@ -47,7 +49,8 @@ import actions from '../actionCreators'
 
 function mapStateToProps(state) {
   return {
-    layout: state.layout,
+    rightSectionWidth: state.layout.rightSectionWidth,
+    activeItemTab: state.layout.activeItemTab,
   }
 }
 
@@ -68,20 +71,30 @@ export default (cytronApp) => {
       debug('tabKey:', tabKey)
     }
 
+    $getTopRightTabContent(tabKey) {
+      switch (tabKey) {
+      case 'RESOURCES':
+        return <span>resource list</span>
+      case 'TRACKERS':
+        return <ConnectedTrackerList/>
+      default: return <span>mask</span>
+      }
+    }
+
     render() {
-      const { layout } = this.props
+      const { rightSectionWidth, activeItemTab } = this.props
       return (
         <div className={cx(cxs.cytronApp, styles.clearfix)}>
           <ConnectedStage />
-          <section className={cxs.sideSection} style={{ width: layout.rightSectionWidth }}>
+          <section className={cxs.sideSection} style={{ width: rightSectionWidth }}>
             <ConnectedVideoSource/>
             <div className={cxs.horSpaceer}/>
-            <Panel tabs={toRightTabs}
-              activeTab={toRightTabs[1].key}
+            <Panel tabs={topRightTabs}
+              height={180}
+              activeTab={activeItemTab}
               onSelectTab={this._switchTopRighTab}>
               <PanelContent>
-                <p>some shit</p>
-                <CheckBox>Good?</CheckBox>
+                { this.$getTopRightTabContent(activeItemTab) }
               </PanelContent>
               <PanelActions>
                 <span>action one</span>

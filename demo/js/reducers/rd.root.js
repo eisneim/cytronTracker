@@ -43,7 +43,12 @@ export default {
   },
 
   SELECT_TRACKER(root, id, cytron) {
-
+    root.currentTracker = id
+    return root
+  },
+  DELETE_TRACKER(root, id, cytron) {
+    root.currentTracker = null
+    return root
   },
   TRACK_BY_FRAME(root, isForward, cytron) {
     const targetFrame = root.currentFrame + (isForward ? 1 : -1)

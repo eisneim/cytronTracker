@@ -5,9 +5,6 @@ let idCount = 1
 const FRAMEPROPS = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
 
 export default {
-  SOME_ACTION(state, payload, cytron) {
-    return state
-  },
 
   NEW_TRACKER(trackers, trackerType, cytron) {
     const { layout, root } = cytron.store.getState()
@@ -134,5 +131,12 @@ export default {
     trackers[trackerIndex] = newTracker
     return trackers
   },
-
+  DELETE_TRACKER(trackers, id, cytron) {
+    const index = trackers.findIndex(t => t.id === id)
+    let newTrackers = trackers.slice()
+    newTrackers.splice(index, 1)
+    // release huge array in cytron
+    cytron.deleteTracker(id)
+    return newTrackers
+  },
 }

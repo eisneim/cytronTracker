@@ -5,6 +5,17 @@ export const TrackerTypes = {
   'PLANNAR': 3,
 }
 
+const trackerTypeName = {
+  [TrackerTypes.MOTION]: 'Motion',
+  [TrackerTypes.SCALE_ROTATION]: 'Scale&Rotaion',
+  [TrackerTypes.PERSPECTIVE]: 'Perspective',
+  [TrackerTypes.PLANNAR]: 'Plannar',
+}
+
+export function getTrackerType(type) {
+  return trackerTypeName[type]
+}
+
 export const MatchAlgorithm = {
   'SSD': 0,
   'BRUTAL': 1,
