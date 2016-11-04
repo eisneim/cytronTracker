@@ -38,4 +38,8 @@ export default {
 
     return layout
   },
+  SET_ITEMS_TAB(layout, tab) {
+    layout.activeItemTab = tab
+    return layout
+  },
 }

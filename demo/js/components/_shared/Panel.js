@@ -108,7 +108,7 @@ export class Panel extends Component {
     onSelectTab: PropTypes.func,
   }
 
-  _handleClick(key) {
+  _handleTabClick(key) {
     if (typeof this.props.onSelectTab === 'function' && key !== this.props.activeTab)
       this.props.onSelectTab(key)
   }

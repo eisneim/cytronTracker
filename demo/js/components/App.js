@@ -45,7 +45,7 @@ const topRightTabs = [
 ]
 
 import { connect } from 'react-redux'
-import actions from '../actionCreators'
+import { layoutActions } from '../actionCreators'
 
 function mapStateToProps(state) {
   return {
@@ -67,8 +67,8 @@ export default (cytronApp) => {
       }
     }
 
-    _switchTopRighTab(tabKey) {
-      debug('tabKey:', tabKey)
+    _switchTopRighTab = (tabKey) => {
+      this.props.setItemsTab(tabKey)
     }
 
     $getTopRightTabContent(tabKey) {
@@ -110,7 +110,7 @@ export default (cytronApp) => {
 
   return connect(
     mapStateToProps,
-    actions
+    layoutActions
   )(App)
 }
 
