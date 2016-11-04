@@ -47,6 +47,12 @@ export default {
   },
   TRACK_BY_FRAME(root, isForward, cytron) {
     const targetFrame = root.currentFrame + (isForward ? 1 : -1)
+    let totalFrame = cytron.$video.duration * root.video.fps
+    if (targetFrame > totalFrame) {
+      debug(`!!!max Frame Number: ${totalFrame} reached!`)
+      return root
+    }
+
     root.delayedTrackJob = {
       prevFrame: root.currentFrame,
       targetFrame,
@@ -56,11 +62,28 @@ export default {
   },
   TRACKING(root, isForward, cytron) {
     root.isTracking = true
-
+    setTimeout(() => {
+      cytron.store.dispatch({
+        type: 'TRACK_BY_FRAME', payload: isForward,
+      })
+    }, 0)
     return root
   },
   STOP_TRACKING(root) {
     root.isTracking = false
+
+    return root
+  },
+  TRACK_POINTS_DONE(root, { targetFrame, prevFrame }, cytron) {
+    let isForward = prevFrame < targetFrame
+    if (root.isTracking) {
+      setTimeout(() => {
+        cytron.store.dispatch({
+          type: 'TRACK_BY_FRAME',
+          payload: isForward,
+        })
+      }, 10) // give it a little gap to avoid thread blocking
+    }
 
     return root
   },
