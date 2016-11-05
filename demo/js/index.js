@@ -70,6 +70,8 @@ class CytronTrackerApp {
     this.$video.addEventListener('canplay', () => {
       // debug('videoEvt:', 'canplay')
       this.store.dispatch(rootActions.canPlay())
+      // let quality = this.$video.getVideoPlaybackQuality()
+      // debug('quality:', quality)
     })
     this.$video.addEventListener('canplaythrough', () => {
       debug('videoEvt:', 'canplaythrough')
