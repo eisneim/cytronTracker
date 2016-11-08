@@ -46,7 +46,7 @@ const styles = csjs`
   left: 50%;
   margin: auto;
   background-color: ${theme.bgMain};
-  border: ${theme.bgMainBorder};
+  border: solid 1px ${theme.bgMainBorder};
   animation: modalIn 0.4s cubic-bezier(.25,.8,.25,1);
 }
 .modal.transitionOut{
@@ -119,7 +119,7 @@ class ModalInner extends Component {
   }
 }
 
-export class Modal extends Component {
+export default class Modal extends Component {
 
   static propTypes = {
     modalId: PropTypes.string.isRequired,
@@ -133,11 +133,12 @@ export class Modal extends Component {
   }
 
   _wraperOnClick = (e) => {
-    if (e.target !== this.$wraper || !this.props.closeOnBackdropClick) return
-    if (typeof this.props.onRequestClose === 'function') {
-      this.props.onRequestClose(this.props.modalId)
+    const { onRequestClose, hideModal, closeOnBackdropClick, modalId } = this.props
+    if (e.target !== this.$wraper || !closeOnBackdropClick) return
+    if (typeof onRequestClose === 'function') {
+      onRequestClose(modalId)
     } else {
-      this.props.hideModal(this.props.modalId)
+      hideModal(modalId)
     }
   }
 
@@ -157,7 +158,7 @@ export class Modal extends Component {
     this.$wraper = document.querySelector('.' + wraperClass)
     if (!this.$wraper) {
       this.$wraper = document.createElement('div')
-      this.$wraper.className = classnames(styles.modalWraper, wraperClass, {
+      this.$wraper.className = cx(styles.modalWraper, wraperClass, {
         [styles.absolute]: this.props.isAbsolute,
       })
 

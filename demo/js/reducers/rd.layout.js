@@ -1,4 +1,7 @@
 import theme from '../theme'
+import { ModalIds } from '../constants'
+
+const debug = require('debug')('cy:rd.layout')
 
 function getAvaHeight(layout) {
   return layout.windowHeight - theme.controlsBarHeight - theme.timelineHeight - 25 * 2 // panel header and footer.
@@ -40,6 +43,21 @@ export default {
   },
   SET_ITEMS_TAB(layout, tab) {
     layout.activeItemTab = tab
+    return layout
+  },
+  SET_MODAL(layout, { key, isOpen }) {
+    if (!ModalIds[key])
+      debug(`invalid modal id: ${key}`)
+    let modals = layout.activeModals.slice()
+    let idx = modals.indexOf(key)
+    let isExist = idx > -1
+    if (isOpen && !isExist) {
+      modals.push(key)
+    } else if (!isOpen && isExist) {
+      modals.splice(idx, 1)
+    }
+
+    layout.activeModals = modals
     return layout
   },
 }

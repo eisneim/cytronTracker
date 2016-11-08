@@ -28,3 +28,7 @@ export const DefaultTracker = {
   RECT_SIZE: 16,
   SEARCH_SIZE: 50,
 }
+
+export const ModalIds = {
+  NEW_RESOURCE: 'newResource',
+}

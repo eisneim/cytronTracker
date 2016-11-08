@@ -29,6 +29,7 @@ var defaultStateObj = {
     canvasHeight: 450,
     activeItemTab: 'TRACKERS', // MASKS, FILES
     showExporter: false,
+    activeModals: [],
   },
   /* each tracker has:
     id,

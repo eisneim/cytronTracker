@@ -1,22 +1,27 @@
 import React, { PropTypes, Component } from 'react'
-// import reactDOM from 'react-dom'
+import { findDOMNode } from 'react-dom'
 import cx from 'classnames'
 import theme from '../../theme'
 import csjs from 'CSJS'
 
+import { FlexSpan } from './Flex'
 import Dragable from './Dragable'
-import { IconButton } from '../_ui/Button'
+import { IconButton } from '../ui/Button'
 import { connect } from 'react-redux'
+import Modal from '../ui/Modal'
 
 const debug = require('debug')('cy:ModalPanel')
 const styles = csjs`
 .header {
   height: 25px;
   min-width: 300px;
-  background-color: ${};
-  border-bottom: ${};
+  background-color: ${theme.bgMainDarker};
+  border-bottom: solid 1px ${theme.bgDarker};
   align-items: center;
   padding-left: 5px;
+  display: flex;
+  flex-direction: row;
+  user-select: none;
 }
 .draggable {
   cursor: move;
@@ -35,7 +40,6 @@ function mapStateToProps(state) {
   }
 }
 
-@connect(mapStateToProps, {})
 export class ModalPanel extends Component {
 
   static propTypes = {
@@ -45,7 +49,7 @@ export class ModalPanel extends Component {
     showBackdrop: PropTypes.bool,
     closeOnBackdropClick: PropTypes.bool,
     isDraggable: PropTypes.bool,
-    activeModals: PropTypes.object,
+    activeModals: PropTypes.array,
     width: PropTypes.number,
     height: PropTypes.number,
   };
@@ -55,6 +59,11 @@ export class ModalPanel extends Component {
     width: 620,
     height: 300,
   };
+
+  constructor() {
+    super()
+    this.state = {}
+  }
 
   _handleCloseBtnClick = () => {
     if (typeof this.props.onRequestClose === 'function') {
@@ -97,7 +106,7 @@ export class ModalPanel extends Component {
   componentDidUpdate() {
     if (this.__needResetPosition) {
       this.__needResetPosition = false
-      const rootRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
+      const rootRect = findDOMNode(this).getBoundingClientRect()
       const width = this.props.width || rootRect.width
       const height = this.props.height || rootRect.height
 
@@ -126,12 +135,8 @@ export class ModalPanel extends Component {
       marginLeft,
     } = this.state
     const modalStyle = {
-      width,
-      height,
-      top,
-      left,
-      marginLeft,
-      marginTop,
+      width, height, top, left,
+      marginLeft, marginTop,
     }
     const headerClassName = cx(styles.header, {
       [styles.draggable]: isDraggable,
@@ -148,10 +153,9 @@ export class ModalPanel extends Component {
           element='header'
           onMove={isDraggable ? this._handleModalMove : null}
           onUp={isDraggable ? this._handleModalRelease : null}
-          className={headerClassName}
-          data-layout="row">
+          className={headerClassName}>
           <span>{title}</span>
-          <span data-flex/>
+          <FlexSpan />
           <IconButton name="close" onClick={this._handleCloseBtnClick}/>
         </Dragable>
         <div className={styles.content}>
@@ -164,4 +168,5 @@ export class ModalPanel extends Component {
     )
   }
 }
-
+const CModalPanel = connect(mapStateToProps, {})(ModalPanel)
+export default CModalPanel

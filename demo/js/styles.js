@@ -49,6 +49,11 @@ module.exports = csjs`
 .materialIcons.md36 { font-size: 36px; }
 .materialIcons.md48 { font-size: 48px; }
 
+  body {
+    color: ${theme.colorMain};
+    font-size: 12px;
+  }
+
   .hide{
     visibility: hidden;
   }

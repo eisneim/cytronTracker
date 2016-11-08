@@ -3,15 +3,17 @@ import cx from 'classnames'
 import styles from '../styles'
 import theme from '../theme'
 import csjs from 'CSJS'
-
+import { ModalIds } from '../constants'
 // import { FlexRow } from './_shared/Flex'
-import Panel, { PanelContent, PanelActions } from './_shared/Panel'
+import Panel, { PanelContent, PanelActions, PanelFooter } from './_shared/Panel'
 import { CheckBox } from './ui'
+import { IconButton } from './ui/Button'
 import { ConnectedVideoSource } from './panels/VideoSource'
 import { ConnectedTrackerSetting } from './panels/TrackerSetting'
 import { ConnectedStage } from './Stage'
 import { ConnectedTrackerList } from './panels/TrackerList'
 
+import NewResourceModal from './modals/NewResourceModal'
 
 const cxs = csjs`
   .cytronApp {
@@ -97,12 +99,20 @@ export default (cytronApp) => {
                 { this.$getTopRightTabContent(activeItemTab) }
               </PanelContent>
               <PanelActions>
-                <span>action one</span>
+                <span>?</span>
               </PanelActions>
+              <PanelFooter>
+                {activeItemTab !== 'RESOURCES' ? null :
+                  <IconButton name="add"
+                    onClick={() => this.props.setModal(ModalIds.NEW_RESOURCE, true)}
+                  >Add Resource</IconButton>
+                }
+              </PanelFooter>
             </Panel>
             <div className={cxs.horSpaceer}/>
             <ConnectedTrackerSetting />
           </section>
+          <NewResourceModal/>
         </div>
       )
     }
