@@ -109,9 +109,7 @@ class ModalInner extends Component {
     }, this.props.className)
 
     return (
-      <div
-        {...this.props}
-        className={modalClass}
+      <div className={modalClass}
         style={modalStyle}>
         {this.props.children}
       </div>

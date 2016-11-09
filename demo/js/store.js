@@ -27,7 +27,7 @@ var defaultStateObj = {
     mainSectionWidth: null,
     canvasWidth: 800,
     canvasHeight: 450,
-    activeItemTab: 'TRACKERS', // MASKS, FILES
+    activeItemTab: 'RESOURCES', // MASKS, FILES
     showExporter: false,
     activeModals: [],
   },

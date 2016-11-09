@@ -2,6 +2,7 @@
 import { TrackerTypes, DefaultTracker } from '../constants'
 const debug = require('debug')('cy:rd.trackers')
 let idCount = 1
+const getID = () => idCount++
 const FRAMEPROPS = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
 
 export default {
@@ -10,7 +11,7 @@ export default {
     const { layout, root } = cytron.store.getState()
     const { currentFrame } = root
     let newTracker = {
-      id: idCount++,
+      id: getID(),
       name: 'Tracker ' + idCount,
       type: trackerType,
       frames: [],

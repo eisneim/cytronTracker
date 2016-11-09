@@ -25,13 +25,13 @@ export default class VideoSource extends React.Component {
           <div style={{ padding: 10, width: '100%', overflowX: 'hidden' }}>
             <Input value={video.url}
               label='VideoUrl'
-              onChange={e =>{ this.$url = e.target.value }}
+              onChange={v =>{ this.$url = v }}
               isLabelAtTop icon="more_horiz"/>
             <FlexRow>
               <div style={{ width: 60, marginTop: 5 }}>
                 <Input label="FPS"
                   value={video.fps}
-                  onChange={e =>{ this.$fps = e.target.value }}/>
+                  onChange={v =>{ this.$fps = v }}/>
               </div>
               <FlexSpan/>
               <Button size="sm" raised

@@ -26,7 +26,14 @@ class CytronTrackerApp {
     // stores the video element in memory
     this.$video = null
     // pair up tracker in state and actual tracker instance
-    this.trackerMap = {} // id: PlannarTracker / Other tracker class
+    // id: PlannarTracker / Other tracker class
+    this.trackerMap = {}
+    // it's not a good idea to put huge base64 url in state object
+    // since is frequently operated on.
+    this.resourceMap = {} // id: img data url
+    // save image tag that will be draw to canvas to this pool
+    // so we don't need to create <img> when we need to draw to canvas
+    this.imgCachePool = {}
 
     this.store = makeStore(this)
   }
