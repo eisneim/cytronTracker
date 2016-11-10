@@ -11,3 +11,10 @@ export function addUrlResource(url, dataUrl, img) {
     payload: { dataUrl, url, img },
   }
 }
+
+export function deleteResource(id) {
+  return {
+    type: 'DELETE_RESOURECE',
+    payload: id,
+  }
+}

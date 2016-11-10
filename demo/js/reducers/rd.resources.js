@@ -23,6 +23,7 @@ export default {
   },
   DELETE_RESOURECE(res, id, cytron) {
     cytron.resourceMap[id] = null
+    cytron.imgCachePool[id] = null
     let idx = res.findIndex(r => r.id === id)
     res.splice(idx, 1)
     return res.slice()

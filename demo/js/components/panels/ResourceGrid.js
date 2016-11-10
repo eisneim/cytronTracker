@@ -16,7 +16,6 @@ const styles = csjs`
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  text-align: center;
   position: relative;
   float: left;
   border:solid 1px transparent;
@@ -24,7 +23,7 @@ const styles = csjs`
 .item:hover {
   border-color: ${theme.colorActive};
 }
-.item:hover .actions {
+.item:hover .actions, .item:hover .info {
   opacity: 1;
 }
 .actions {
@@ -32,6 +31,15 @@ const styles = csjs`
   position: absolute;
   right: 5px;
   top: 5px;
+  transition: opacity 0.3s ease;
+}
+.info {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  opacity: 0;
+  text-align: center;
+  width: 100%;
   transition: opacity 0.3s ease;
 }
 `
@@ -66,10 +74,11 @@ export class ResourceGrid extends React.Component {
               style={itemStyle}
               className={styles.item}
             >
-             <span className={styles.actions}>
-               <IconButton name='delete'/>
-             </span>
-             <span>{rr.name}</span>
+            <span className={styles.actions}>
+              <IconButton name='delete'
+                onClick={() => deleteResource(rr.id)}/>
+            </span>
+             <div className={styles.info}>{rr.name}</div>
             </li>
           )
         })
