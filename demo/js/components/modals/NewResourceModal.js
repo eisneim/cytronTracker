@@ -46,8 +46,15 @@ class NewResourceModal extends React.Component {
   }
 
   _fromUrl = () => {
-    notify.info('formUrl: ' + this.$url)
-    debug('fromUrl:', this.$url)
+    fileUtil.canvasToDataUrl(this.$url, (err, dataUrl, img) => {
+      if (err) {
+        notify.error('invalid url, resource download faild')
+        debug(err)
+        return
+      }
+      this.props.addUrlResource(this.$url, dataUrl, img)
+      this.$url = ''
+    })
   }
 
   render() {

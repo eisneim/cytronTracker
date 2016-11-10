@@ -21,20 +21,22 @@ export function remoteToDataUrl(url, callback) {
  * @param  {Object}   options image/png, image/jpeg, image/webp
  * @return {string}                .
  */
-export function canvasToDataUrl(src, callback, { outputFormat, maxWidth } = options) {
-  if (!outputFormat) outputFormat = 'image/jpeg'
+export function canvasToDataUrl(src, callback, options = {}) {
+  let { outputFormat, maxWidth } = options
+  if (!outputFormat) outputFormat = 'image/png'
   var img = new Image()
+  // var img = document.createElement('img')
   img.crossOrigin = 'Anonymous'
   img.onload = () => {
     var canvas = document.createElement('CANVAS')
     var ctx = canvas.getContext('2d')
     var dataURL
-    canvas.height = this.height
-    canvas.width = this.width
+    canvas.height = img.height
+    canvas.width = img.width
     if (!maxWidth) {
-      ctx.drawImage(this, 0, 0)
+      ctx.drawImage(img, 0, 0)
     } else {
-      let ratio = this.width / this.height
+      let ratio = img.width / img.height
       let w, h
       if (ratio > 1) {
         w = maxWidth
@@ -44,17 +46,20 @@ export function canvasToDataUrl(src, callback, { outputFormat, maxWidth } = opti
         w = ratio * maxWidth
       }
 
-      ctx.drawImage(this, 0, 0, w, h)
+      ctx.drawImage(img, 0, 0, w, h)
     }
 
     dataURL = canvas.toDataURL(outputFormat)
-    callback(dataURL, img)
+    callback(null, dataURL, img)
   }
+  img.onerror = e => callback(e)
+  img.onabort = e => callback(e)
   img.src = src
-  if (img.complete || img.complete === undefined) {
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
-    img.src = src
-  }
+
+  // if (img.complete || img.complete === undefined) {
+  //   img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+  //   img.src = src
+  // }
 }
 
 export function fileToDataUrl(file, callback, createImage) {

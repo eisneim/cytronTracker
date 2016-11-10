@@ -43,7 +43,11 @@ var defaultStateObj = {
   trackers: [], // tracker1 => tracks(4) [{x,y},{x,y}], frameNumber is index of each coordinate
   masks: [], // masks for items, can be resued.
   items: [], // {id, trackerId, maskId, resourceId, w, h,}
-  resources: [], // { id, name, }
+  resources: [
+    { id: 100, url: 'https://vplscdn.videojj.com/page/index/logo.png' },
+    { id: 110, url: 'https://vplscdn.videojj.com/brand/img/brand-icon-logo-3.png' },
+    { id: 120, url: 'https://vplscdn.videojj.com/brand/img/part4-2.png' },
+  ], // { id, name, }
   exports: [], // { id, itemId,  }
 }
 

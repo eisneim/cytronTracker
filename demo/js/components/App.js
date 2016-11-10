@@ -12,6 +12,7 @@ import { ConnectedVideoSource } from './panels/VideoSource'
 import { ConnectedTrackerSetting } from './panels/TrackerSetting'
 import { ConnectedStage } from './Stage'
 import { ConnectedTrackerList } from './panels/TrackerList'
+import { CResourceGrid } from './panels/ResourceGrid'
 
 import NewResourceModal from './modals/NewResourceModal'
 
@@ -76,7 +77,7 @@ export default (cytronApp) => {
     $getTopRightTabContent(tabKey) {
       switch (tabKey) {
       case 'RESOURCES':
-        return <span>resource list</span>
+        return <CResourceGrid/>
       case 'TRACKERS':
         return <ConnectedTrackerList/>
       default: return <span>mask</span>
@@ -92,7 +93,7 @@ export default (cytronApp) => {
             <ConnectedVideoSource/>
             <div className={cxs.horSpaceer}/>
             <Panel tabs={topRightTabs}
-              height={180}
+              height={250}
               activeTab={activeItemTab}
               onSelectTab={this._switchTopRighTab}>
               <PanelContent>

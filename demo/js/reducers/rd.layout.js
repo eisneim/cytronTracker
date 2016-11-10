@@ -60,4 +60,12 @@ export default {
     layout.activeModals = modals
     return layout
   },
+  ADD_RESOURECE(layout) {
+    let { activeModals } = layout
+    let idx = activeModals.indexOf(ModalIds.NEW_RESOURCE)
+    activeModals.splice(idx, 1)
+
+    layout.activeModals = activeModals.slice()
+    return layout
+  },
 }

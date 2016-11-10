@@ -23,7 +23,7 @@ export default class VideoSource extends React.Component {
       <Panel title="Video Source" height={115}>
         <PanelContent>
           <div style={{ padding: 10, width: '100%', overflowX: 'hidden' }}>
-            <Input value={video.url}
+            <Input value={video.url || ''}
               label='VideoUrl'
               onChange={v =>{ this.$url = v }}
               isLabelAtTop icon="more_horiz"/>

@@ -6,5 +6,8 @@ export function addFileResource(file, dataUrl, img) {
 }
 
 export function addUrlResource(url, dataUrl, img) {
-
+  return {
+    type: 'ADD_RESOURECE',
+    payload: { dataUrl, url, img },
+  }
 }
