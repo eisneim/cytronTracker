@@ -4,6 +4,8 @@ import { findDOMNode } from 'react-dom'
 // import theme from '../../theme'
 import csjs from 'CSJS'
 import { ModalIds } from '../../constants'
+import notify from '../../utils/util.notify.js'
+
 import ModalPanel from '../_shared/ModalPanel'
 // import { FlexRow, FlexSpan } from '../_shared/Flex'
 import { Button, Input } from '../ui'
@@ -44,6 +46,7 @@ class NewResourceModal extends React.Component {
   }
 
   _fromUrl = () => {
+    notify.info('formUrl: ' + this.$url)
     debug('fromUrl:', this.$url)
   }
 
