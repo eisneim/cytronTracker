@@ -364,3 +364,12 @@ export default class PlannarTracker {
 
 }
 
+export function projectPoint(x, y, M) {
+  let px = M[0] * x + M[1] * y + M[2]
+  let py = M[3] * x + M[4] * y + M[5]
+  let pz = M[6] * x + M[7] * y + M[8]
+  return {
+    x: px / pz,
+    y: py / pz,
+  }
+}
