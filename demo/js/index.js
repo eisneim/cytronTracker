@@ -34,6 +34,8 @@ class CytronTrackerApp {
     // save image tag that will be draw to canvas to this pool
     // so we don't need to create <img> when we need to draw to canvas
     this.imgCachePool = {}
+    // for each matrix transform, we need a starting pixel pattern
+    this.imgInitRawData = {}
 
     this.store = makeStore(this)
   }

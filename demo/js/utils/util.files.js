@@ -1,17 +1,22 @@
 /* eslint-disable func-names */
 
 export function remoteToDataUrl(url, callback) {
-  let xhr = new XMLHttpRequest()
-  xhr.responseType = 'blob'
-  xhr.onload = () => {
-    let reader = new FileReader()
-    reader.onloadend = () => {
-      callback(reader.result)
+  try {
+    let xhr = new XMLHttpRequest()
+    xhr.responseType = 'blob'
+    xhr.onload = () => {
+      let reader = new FileReader()
+      reader.onloadend = () => {
+        callback(null, reader.result)
+      }
+      reader.readAsDataURL(xhr.response)
     }
-    reader.readAsDataURL(xhr.response)
+    xhr.open('GET', url)
+    xhr.send()
+  } catch (e) {
+    callback(e)
   }
-  xhr.open('GET', url)
-  xhr.send()
+
 }
 
 /**
@@ -24,13 +29,13 @@ export function remoteToDataUrl(url, callback) {
 export function canvasToDataUrl(src, callback, options = {}) {
   let { outputFormat, maxWidth } = options
   if (!outputFormat) outputFormat = 'image/png'
-  var img = new Image()
-  // var img = document.createElement('img')
+  let img = new Image()
+  // let img = document.createElement('img')
   img.crossOrigin = 'Anonymous'
   img.onload = () => {
-    var canvas = document.createElement('CANVAS')
-    var ctx = canvas.getContext('2d')
-    var dataURL
+    let canvas = document.createElement('CANVAS')
+    let ctx = canvas.getContext('2d')
+    let dataURL
     canvas.height = img.height
     canvas.width = img.width
     if (!maxWidth) {

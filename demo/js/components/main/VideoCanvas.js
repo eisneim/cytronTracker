@@ -41,7 +41,7 @@ export default class VideoCanvas extends React.Component {
   }
 
   drawCurrentFrame() {
-    debug('drawCurrentFrame call', this.props.currentFrame)
+    // debug('drawCurrentFrame call', this.props.currentFrame)
     const { cytron } = this.context
     const { $video } = cytron
     const { cWidth, cHeight, delayedTrackJob } = this.props

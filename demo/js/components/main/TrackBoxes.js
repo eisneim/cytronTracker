@@ -1,5 +1,5 @@
 import React from 'react'
-// import { findDOMNode } from 'react-dom'
+import { findDOMNode } from 'react-dom'
 // import cx from 'classnames'
 import theme from '../../theme'
 import csjs from 'CSJS'
@@ -9,7 +9,7 @@ const debug = require('debug')('cy:TrackBoxes')
 import { TrackerTypes } from '../../constants'
 
 const styles = csjs`
-  .wraper {
+  .wraper, .resCanvas {
     position: absolute;
   }
   .searchBox, .innerBox {
@@ -31,9 +31,70 @@ const styles = csjs`
 
 export default class TrackBoxes extends React.Component {
 
-  // static contextTypes = {
-  //   cytron: React.PropTypes.object,
-  // };
+  static contextTypes = {
+    cytron: React.PropTypes.object,
+  };
+
+  componentDidMount() {
+    this.$resCanvas = findDOMNode(this.refs.resCanvas)
+    this.resCtx = this.$resCanvas.getContext('2d')
+  }
+
+  // componentWillReceiveProps(newProps) {
+  //   // should do some check
+
+  // }
+
+  getImgData($img) {
+    const { cWidth, cHeight } = this.props
+    let canvas = document.createElement('CANVAS')
+    canvas.width = cWidth
+    canvas.height = cHeight
+    let ctx = canvas.getContext('2d')
+    let ratio = $img.width / $img.height
+    let avaRatio = cWidth / cHeight
+    // make sure the canvas contains it
+    if (avaRatio >= ratio && $img.height >= cHeight) {
+      debug('img is wider than canvas')
+      $img.height = cHeight
+      $img.width = cHeight * ratio
+    } else if (avaRatio < ratio && $img.width >= cWidth) {
+      debug('img is taller than canvas')
+      $img.width = cWidth
+      $img.height = cWidth / ratio
+    }
+    ctx.drawImage($img, 0, 0, $img.width, $img.height)
+    return ctx.getImageData(0, 0, $img.width, $img.height)
+  }
+
+  drawResource() {
+    const { currentFrame, trackerData, cWidth, cHeight } = this.props
+    const { resourceId } = trackerData
+    /* eslint-disable eqeqeq */
+    if (resourceId == null)
+      return
+
+    const frame = trackerData.frames[currentFrame]
+    const { imgCachePool, imgInitRawData } = this.context.cytron
+    const $img = imgCachePool[resourceId]
+    let imgData = imgInitRawData[resourceId]
+    if (!imgData) {
+      debug('init image data not exists, creating it...')
+      imgData = this.getImgData($img)
+      this.context.cytron.imgInitRawData[resourceId] = imgData
+    }
+    if (!trackerData.mtxs) trackerData.mtxs = []
+    var homoMtx = trackerData.mtxs[currentFrame]
+    // calculate homography
+    if (!homoMtx) {
+      debug('should calculate homography')
+
+    }
+    // draw attatched resource
+    this.resCtx.clearRect(0, 0, cWidth, cHeight)
+    this.resCtx.putImageData(imgData, frame[0].x, frame[0].y)
+  }
+
   getOffset(ee, se) {
     return {
       offsetX: ee.clientX - se.clientX,
@@ -63,6 +124,8 @@ export default class TrackBoxes extends React.Component {
     if (!trackerData) return null
     const frame = trackerData.frames[currentFrame]
     if (!frame || !Array.isArray(frame)) return null
+
+    this.drawResource(frame)
 
     return frame.map((point, index) => {
       const { x, y, rectW, rectH, searchW, searchH } = point
@@ -122,6 +185,10 @@ export default class TrackBoxes extends React.Component {
 
     return (
       <div className={styles.wraper} style={wraperStyle}>
+        <canvas className={styles.resCanvas}
+          width={cWidth}
+          height={cHeight}
+          ref="resCanvas"/>
         <svg width={cWidth} height={cHeight} viewBox={`0 0 ${cWidth} ${cHeight}`} xmlns="http://www.w3.org/2000/svg">
           { this.$lines() }
         </svg>

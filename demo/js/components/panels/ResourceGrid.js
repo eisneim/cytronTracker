@@ -5,6 +5,10 @@ import theme from '../../theme'
 import csjs from 'CSJS'
 
 import { IconButton } from '../ui/Button'
+import { canvasToDataUrl } from '../../utils/util.files.js'
+import notify from '../../utils/util.notify.js'
+
+const debug = require('debug')('cy:ResourceGrid')
 
 const styles = csjs`
 .grid {
@@ -50,10 +54,27 @@ export class ResourceGrid extends React.Component {
     cytron: React.PropTypes.object,
   };
 
+  _toTracker(res) {
+    const { cytron } = this.context
+    if (!cytron.imgCachePool[res.id]) {
+      canvasToDataUrl(res.url, (err, dataUrl, img) => {
+        if (err) {
+          notify.error('faild to pre process resource, make sure it has proper Access-Control-Allow-Origin header')
+          return
+        }
+        cytron.imgCachePool[res.id] = img
+        cytron.resourceMap[res.id] = dataUrl
+        this.props.resourceToTracker(res)
+      })
+    } else {
+      this.props.resourceToTracker(res)
+    }
+  }
+
   render() {
     let { resourceMap } = this.context.cytron
     const {
-      resources, selectResource, deleteResource, aWidth,
+      resources, deleteResource, aWidth,
     } = this.props
     if (!resources || resources.length === 0)
       return <div style={{ padding: 10 }}>currently no Resource created</div>
@@ -72,6 +93,7 @@ export class ResourceGrid extends React.Component {
           return (
             <li key={rr.id}
               style={itemStyle}
+              onClick={() => this._toTracker(rr)}
               className={styles.item}
             >
             <span className={styles.actions}>

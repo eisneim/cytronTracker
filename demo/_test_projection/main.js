@@ -86,57 +86,54 @@ function wrapPerspective(src, dst, mtx, startX, startY, fill) {
       if (sx < 0 || sy < 0 || sx > sWidth || sy > sHeight)
         continue
 
-      if (dx === 0 && dy === 0) {
-        console.log('dx, dy=0', sx, sy, x, y)
-        set4chanel(dst.data, destIdx, src.data, srcIdx)
-      } else { // interpulation
-        /*
-          @TODO: currently write this code for readablility, but it definitely
-          needs refactor
-         */
-        // -------------- Math.floor -------------------
-        // for (var jj = 0; jj < 4; jj++) {
-        //   dst.data[destIdx + jj] = src.data[srcIdx + jj]
-        // }
-        // continue
-        // -------------- NEAREST NEIGHBOR INTERPOLATION -------------------
-        // var interpIdx = srcIdx
-        // if (dx < 0.5 && dy > 0.5) {
-        //   interpIdx = srcIdx + sWidth * 4
-        // } else if (dx > 0.5 && dy > 0.5) {
-        //   interpIdx = srcIdx + sWidth * 4 + 4
-        // } else if (dx > 0.5 && dy < 0.5){
-        //   interpIdx = srcIdx + 4
-        // }
-        // for (var jj = 0; jj < 4; jj++) {
-        //   dst.data[destIdx + jj] = src.data[interpIdx + jj]
-        // }
-        // continue
 
-        // ---------------- BILINEAR INTERPOLATION -----------------
-        var interpx1 = [], interpx2 = []
-        for (var aa = 0; aa < 4; aa++) { // top left -> right
-          interpx1[aa] = src.data[srcIdx + aa] * (1 - dx) + dx * src.data[srcIdx + 4 + aa]
-        }
-        var nextRowOffset = sWidth * 4
-        for (var bb = 0; bb < 4; bb++) { // bottom left -> right
-          interpx2[bb] = src.data[srcIdx + nextRowOffset + bb] * (1 - dx) + dx * src.data[srcIdx + 4 + nextRowOffset + bb]
-        }
+      /*
+        @TODO: currently write this code for readablility, but it definitely
+        needs refactor
+       */
+      // -------------- Math.floor -------------------
+      // for (var jj = 0; jj < 4; jj++) {
+      //   dst.data[destIdx + jj] = src.data[srcIdx + jj]
+      // }
+      // continue
+      // -------------- NEAREST NEIGHBOR INTERPOLATION -------------------
+      // var interpIdx = srcIdx
+      // if (dx < 0.5 && dy > 0.5) {
+      //   interpIdx = srcIdx + sWidth * 4
+      // } else if (dx > 0.5 && dy > 0.5) {
+      //   interpIdx = srcIdx + sWidth * 4 + 4
+      // } else if (dx > 0.5 && dy < 0.5){
+      //   interpIdx = srcIdx + 4
+      // }
+      // for (var jj = 0; jj < 4; jj++) {
+      //   dst.data[destIdx + jj] = src.data[interpIdx + jj]
+      // }
+      // continue
 
-        // y direction interpulation
-        for (var ii = 0; ii < 4; ii++) { // top -> bottom
-          dst.data[destIdx + ii] = interpx1[ii] * (1 - dy) + dy * interpx2[ii]
-        }
-
-        // debug
-        if (sx > 50 && sx < 52 && sy > 50 && sy < 52) {
-          console.log('x, y', x, y, sx, sy, 'dx, dy', dx, dy)
-          console.log(interpx1, interpx2)
-          console.log('source R:', src.data[srcIdx], src.data[srcIdx + 4], src.data[srcIdx + sWidth], src.data[srcIdx + sWidth + 4])
-          console.log('resault R:', interpx1[0] * dy + (1 - dy) * interpx2[0])
-          console.log('------------')
-        }
+      // ---------------- BILINEAR INTERPOLATION -----------------
+      var interpx1 = [], interpx2 = []
+      for (var aa = 0; aa < 4; aa++) { // top left -> right
+        interpx1[aa] = src.data[srcIdx + aa] * (1 - dx) + dx * src.data[srcIdx + 4 + aa]
       }
+      var nextRowOffset = sWidth * 4
+      for (var bb = 0; bb < 4; bb++) { // bottom left -> right
+        interpx2[bb] = src.data[srcIdx + nextRowOffset + bb] * (1 - dx) + dx * src.data[srcIdx + 4 + nextRowOffset + bb]
+      }
+
+      // y direction interpulation
+      for (var ii = 0; ii < 4; ii++) { // top -> bottom
+        dst.data[destIdx + ii] = interpx1[ii] * (1 - dy) + dy * interpx2[ii]
+      }
+
+      // debug
+      if (sx > 50 && sx < 52 && sy > 50 && sy < 52) {
+        console.log('x, y', x, y, sx, sy, 'dx, dy', dx, dy)
+        console.log(interpx1, interpx2)
+        console.log('source R:', src.data[srcIdx], src.data[srcIdx + 4], src.data[srcIdx + sWidth], src.data[srcIdx + sWidth + 4])
+        console.log('resault R:', interpx1[0] * dy + (1 - dy) * interpx2[0])
+        console.log('------------')
+      }
+
 
     } // end of x loop
   } // end of y loop

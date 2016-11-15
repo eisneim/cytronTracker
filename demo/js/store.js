@@ -44,7 +44,8 @@ var defaultStateObj = {
   masks: [], // masks for items, can be resued.
   items: [], // {id, trackerId, maskId, resourceId, w, h,}
   resources: [
-    { id: 9999, url: 'https://vplscdn.videojj.com/page/index/logo.png', name: 'vjj.png' },
+    // { id: 9999, url: 'https://vplscdn.videojj.com/page/index/logo.png', name: 'vjj.png' },
+    { id: 9999, url: 'footage.png', name: 'vjj.png' },
   ], // { id, name, }
   exports: [], // { id, itemId,  }
 }

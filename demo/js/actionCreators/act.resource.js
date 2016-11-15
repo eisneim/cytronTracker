@@ -18,3 +18,10 @@ export function deleteResource(id) {
     payload: id,
   }
 }
+
+export function resourceToTracker(resource) {
+  return {
+    type: 'RES_TO_TRACKER',
+    payload: resource,
+  }
+}

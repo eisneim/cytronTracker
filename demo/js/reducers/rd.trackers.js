@@ -1,9 +1,23 @@
 /* eslint-disable no-unused-vars */
 import { TrackerTypes, DefaultTracker } from '../constants'
+import notify from '../utils/util.notify.js'
+
 const debug = require('debug')('cy:rd.trackers')
 let idCount = 1
 const getID = () => idCount++
 const FRAMEPROPS = [ 'x', 'y', 'rectH', 'rectW', 'searchH', 'searchW' ]
+
+function actTrackerNFrame(state) {
+  const { currentFrame, currentTracker } = state.root
+  const idx = state.trackers.findIndex(t => t.id === currentTracker)
+  if (idx === -1)
+    return { tracker: null, idx }
+
+  let tracker = Object.assign({}, state.trackers[idx])
+  let frame = tracker.frames[currentFrame] || []
+
+  return { tracker, currentFrame, currentTracker, frame, idx }
+}
 
 export default {
 
@@ -139,5 +153,20 @@ export default {
     // release huge array in cytron
     cytron.deleteTracker(id)
     return newTrackers
+  },
+  RES_TO_TRACKER(trackers, resource, cytron) {
+    const { tracker, idx } = actTrackerNFrame(cytron.store.getState())
+    if (!tracker) {
+      notify.error('need to create tracker first')
+      return trackers
+    }
+    if (tracker.resourceId != null) {
+      notify.warn('should create a new tracker, currently only support 1 tracker 1 resource')
+      return trackers
+    }
+    tracker.resourceId = resource.id
+
+    trackers[idx] = tracker
+    return trackers
   },
 }
