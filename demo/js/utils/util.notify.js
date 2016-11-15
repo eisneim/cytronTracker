@@ -10,7 +10,7 @@ const styles = csjs`
 .notify {
   margin-bottom: 5px;
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
 }
 .notify.shouldHide .notifyInner{
   animation: hideRight 0.3s ease-out;
