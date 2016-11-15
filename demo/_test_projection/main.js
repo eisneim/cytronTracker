@@ -50,14 +50,14 @@ function set4chanel(dist, dIdx, src, sIdx) {
 
 // use the reversed projectiveMatrix to project from dest to src
 // and read rgba from source and do some interpulation
-function wrapPerspective(src, dst, mtx, startX, startY) {
+function wrapPerspective(src, dst, mtx, startX, startY, preserveEdgeAlpha) {
   var inverseMtx = inverse3x3(mtx)
   console.log('inverseMtx:', inverseMtx, 'origin:', mtx)
   var sWidth = src.width, sHeight = src.height
   var dWidth = dst.width, dHeight = dst.height
 
-  for (var y = 0; y < dHeight - startY; y++ ) {
-    for (var x = 0; x < dWidth; x++) {
+  for (var y = -startY; y < dHeight - startY; y++ ) {
+    for (var x = -startX; x < dWidth - startX; x++) {
       var destIdx = (x + startX + (y + startY) * dWidth) * 4
       var newCord = projectPoint(x, y, inverseMtx)
 
@@ -119,6 +119,32 @@ function wrapPerspective(src, dst, mtx, startX, startY) {
         for (var ii = 0; ii < 4; ii++) {
           dst.data[destIdx + ii] = interpx1[ii] * (1 - dy) + dy * interpx2[ii]
         }
+
+        if (preserveEdgeAlpha) {
+          var atl = src.data[srcIdx + 3], atr = src.data[srcIdx + 3 + 4],
+            abl = src.data[srcIdx + 3 + sWidth * 4], abr = src.data[srcIdx + 3 + sWidth * 4 + 4]
+          var thresh = 10
+          var isCloseToEdge = (atl < thresh && atr < thresh) ||
+            (atr < thresh && abr < thresh) ||
+            (abl < thresh && abr < thresh) ||
+            (abl < thresh && abr < atl)
+          // var isCloseToEdge = atl < thresh || atr < thresh || abl < thresh || abr < thresh
+          if (!isCloseToEdge) continue
+
+          var nearIdx = srcIdx
+          if (dx < 0.5 && dy > 0.5) {
+            nearIdx = srcIdx + sWidth * 4
+          } else if (dx > 0.5 && dy > 0.5) {
+            nearIdx = srcIdx + sWidth * 4 + 4
+          } else if (dx > 0.5 && dy < 0.5){
+            nearIdx = srcIdx + 4
+          }
+          for (var jj = 0; jj < 4; jj++) {
+            dst.data[destIdx + jj] = src.data[nearIdx + jj]
+          }
+
+        }
+
         // debug
         if (sx > 50 && sx < 52 && sy > 50 && sy < 52) {
           console.log('x, y', x, y, sx, sy, 'dx, dy', dx, dy)
@@ -170,7 +196,7 @@ function wrapPerspective(src, dst, mtx, startX, startY) {
   //   target.data[targetIdx + 3] = imgData.data[idx + 3]
   // }
 
-  wrapPerspective(imgData, target, transMtx, startX, startY)
+  wrapPerspective(imgData, target, transMtx, startX, startY, true)
 
   ctx.putImageData(target, 0, 0)
   console.log('costTime:', Date.now() - startTime)
