@@ -50,7 +50,16 @@ function set4chanel(dist, dIdx, src, sIdx) {
 
 // use the reversed projectiveMatrix to project from dest to src
 // and read rgba from source and do some interpulation
-function wrapPerspective(src, dst, mtx, startX, startY, preserveEdgeAlpha) {
+function wrapPerspective(src, dst, mtx, startX, startY, fill) {
+  if (fill) {
+    for (var ee = 3; ee < src.data.length; ee += 4) {
+      if (src.data[ee] === 0) {
+        src.data[ee - 3] = fill[0]
+        src.data[ee - 2] = fill[1]
+        src.data[ee - 1] = fill[2]
+      }
+    }
+  }
   var inverseMtx = inverse3x3(mtx)
   console.log('inverseMtx:', inverseMtx, 'origin:', mtx)
   var sWidth = src.width, sHeight = src.height
@@ -105,44 +114,18 @@ function wrapPerspective(src, dst, mtx, startX, startY, preserveEdgeAlpha) {
         // continue
 
         // ---------------- BILINEAR INTERPOLATION -----------------
-
         var interpx1 = [], interpx2 = []
-        for (var aa = 0; aa < 4; aa++) {
+        for (var aa = 0; aa < 4; aa++) { // top left -> right
           interpx1[aa] = src.data[srcIdx + aa] * (1 - dx) + dx * src.data[srcIdx + 4 + aa]
         }
         var nextRowOffset = sWidth * 4
-        for (var bb = 0; bb < 4; bb++) {
+        for (var bb = 0; bb < 4; bb++) { // bottom left -> right
           interpx2[bb] = src.data[srcIdx + nextRowOffset + bb] * (1 - dx) + dx * src.data[srcIdx + 4 + nextRowOffset + bb]
         }
 
         // y direction interpulation
-        for (var ii = 0; ii < 4; ii++) {
+        for (var ii = 0; ii < 4; ii++) { // top -> bottom
           dst.data[destIdx + ii] = interpx1[ii] * (1 - dy) + dy * interpx2[ii]
-        }
-
-        if (preserveEdgeAlpha) {
-          var atl = src.data[srcIdx + 3], atr = src.data[srcIdx + 3 + 4],
-            abl = src.data[srcIdx + 3 + sWidth * 4], abr = src.data[srcIdx + 3 + sWidth * 4 + 4]
-          var thresh = 10
-          var isCloseToEdge = (atl < thresh && atr < thresh) ||
-            (atr < thresh && abr < thresh) ||
-            (abl < thresh && abr < thresh) ||
-            (abl < thresh && abr < atl)
-          // var isCloseToEdge = atl < thresh || atr < thresh || abl < thresh || abr < thresh
-          if (!isCloseToEdge) continue
-
-          var nearIdx = srcIdx
-          if (dx < 0.5 && dy > 0.5) {
-            nearIdx = srcIdx + sWidth * 4
-          } else if (dx > 0.5 && dy > 0.5) {
-            nearIdx = srcIdx + sWidth * 4 + 4
-          } else if (dx > 0.5 && dy < 0.5){
-            nearIdx = srcIdx + 4
-          }
-          for (var jj = 0; jj < 4; jj++) {
-            dst.data[destIdx + jj] = src.data[nearIdx + jj]
-          }
-
         }
 
         // debug
@@ -196,7 +179,7 @@ function wrapPerspective(src, dst, mtx, startX, startY, preserveEdgeAlpha) {
   //   target.data[targetIdx + 3] = imgData.data[idx + 3]
   // }
 
-  wrapPerspective(imgData, target, transMtx, startX, startY, true)
+  wrapPerspective(imgData, target, transMtx, startX, startY, [60, 180, 113])
 
   ctx.putImageData(target, 0, 0)
   console.log('costTime:', Date.now() - startTime)
