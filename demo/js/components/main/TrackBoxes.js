@@ -138,12 +138,15 @@ export default class TrackBoxes extends React.Component {
     // calculate homography
     if (homoMtx) {
       // change the resTransMtx
-      mtx = multiply3x3(mtx, homoMtx)
+      mtx = multiply3x3(homoMtx, mtx)
+      debug('multiply3x3', mtx)
     }
     // draw attatched resource
     this.resCtx.clearRect(0, 0, cWidth, cHeight)
     let destData = this.resCtx.createImageData(cWidth, cHeight)
+
     wrapPerspective(imgData, destData, mtx, 0, 0)
+
     this.resCtx.putImageData(destData, 0, 0)
   }
 
@@ -243,13 +246,13 @@ export default class TrackBoxes extends React.Component {
     const { ctracker } = this.props
     if (!ctracker || !ctracker.resTransPoints) return null
     let handleWidth = 12
-    return ctracker.resTransPoints.map(p => {
+    return ctracker.resTransPoints.map((p, idx) => {
       const handleStyle = {
         width: handleWidth, height: handleWidth,
         top: p.y - handleWidth / 2, left: p.x - handleWidth / 2,
       }
 
-      return <Dragable
+      return <Dragable key={idx}
         onMove={(e, se) => this._rectMove(e, se, index, point)}
         onUp={(e, se) => this._dragUp(e, se, index, point)}
         className={styles.boundHandle} style={handleStyle}/>

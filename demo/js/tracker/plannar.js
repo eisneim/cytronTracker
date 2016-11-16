@@ -183,7 +183,7 @@ export default class PlannarTracker {
     // debug('patternXy, searchXy ', patternXy, searchXy)
     let newPoints = this.transformPoints(this.patternPoints, homo3x3.data)
     debug('newPoints, points', newPoints)
-    return { newPoints, homo3x3 }
+    return { newPoints, homo3x3: homo3x3.data }
   }
 
   drawMatches(matches) {
