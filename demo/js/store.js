@@ -36,6 +36,9 @@ var defaultStateObj = {
     type: 'MOTION', // 'SCALE_ROTATION', 'CORNOR_PIN', 'PLANNAR'
     rotation: false,
     scale: false,
+    resInitPoints: [{x, y}, {}] 4points
+    resTransPoints: [{x, y}, {}] 4points
+    resRelativesMtx: []
     frames: [{
       x, y, rectH, rectW, searchW, searchH
     }],

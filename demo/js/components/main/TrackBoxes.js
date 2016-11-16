@@ -6,6 +6,7 @@ import csjs from 'CSJS'
 import Dragable from '../_shared/Dragable'
 const debug = require('debug')('cy:TrackBoxes')
 
+import { findHomographyFromArray, multiply3x3, wrapPerspective } from '../../../../src/utils/matrix.js'
 import { TrackerTypes } from '../../constants'
 
 const styles = csjs`
@@ -45,7 +46,9 @@ export default class TrackBoxes extends React.Component {
 
   // }
 
-  getImgData($img) {
+  getImgData($img, trackerData, frame) {
+    // @TODO: it's not nessesary to do down sampling
+    // as long as we are calculating the correct transform matrix
     const { cWidth, cHeight } = this.props
     let canvas = document.createElement('CANVAS')
     canvas.width = cWidth
@@ -64,6 +67,30 @@ export default class TrackBoxes extends React.Component {
       $img.height = cWidth / ratio
     }
     ctx.drawImage($img, 0, 0, $img.width, $img.height)
+    // update trackerData's resTransPoints array
+    // this is such a bad code pattern, should be rewrited!!!!
+    trackerData.resInitPoints = [
+      { x: 0, y: 0 },
+      { x: $img.width, y: 0 },
+      { x: $img.width, y: $img.height },
+      { x: 0, y: $img.height },
+    ]
+    let maxX = 0, maxY = 0, minX = 9999, minY = 9999
+    frame.forEach(f => {
+      maxX = Math.max(f.x, maxX)
+      maxY = Math.max(f.y, maxY)
+      minX = Math.min(f.x, minX)
+      minY = Math.min(f.y, minY)
+    })
+    let dx = maxX - minX, dy = dx / ratio
+    if (!trackerData.resTransPoints) trackerData.resTransPoints = []
+    trackerData.resTransPoints.push({ x: minX, y: minY }) // TL
+    trackerData.resTransPoints.push({ x: maxX, y: minY }) // TR
+    trackerData.resTransPoints.push({ x: maxX, y: maxY + dy }) // BR
+    trackerData.resTransPoints.push({ x: minX, y: maxY + dy }) // BL
+
+    trackerData.resRelativeMtx = findHomographyFromArray(trackerData.resInitPoints, trackerData.resTransPoints)
+
     return ctx.getImageData(0, 0, $img.width, $img.height)
   }
 
@@ -80,19 +107,23 @@ export default class TrackBoxes extends React.Component {
     let imgData = imgInitRawData[resourceId]
     if (!imgData) {
       debug('init image data not exists, creating it...')
-      imgData = this.getImgData($img)
+      imgData = this.getImgData($img, trackerData, frame)
       this.context.cytron.imgInitRawData[resourceId] = imgData
     }
+
+    let mtx = trackerData.resRelativeMtx.slice()
     if (!trackerData.mtxs) trackerData.mtxs = []
     var homoMtx = trackerData.mtxs[currentFrame]
     // calculate homography
-    if (!homoMtx) {
-      debug('should calculate homography')
-
+    if (homoMtx) {
+      // change the resTransMtx
+      mtx = multiply3x3(mtx, homoMtx)
     }
     // draw attatched resource
     this.resCtx.clearRect(0, 0, cWidth, cHeight)
-    this.resCtx.putImageData(imgData, frame[0].x, frame[0].y)
+    let destData = this.resCtx.createImageData(cWidth, cHeight)
+    wrapPerspective(imgData, destData, mtx, 0, 0)
+    this.resCtx.putImageData(destData, 0, 0)
   }
 
   getOffset(ee, se) {

@@ -143,6 +143,25 @@ export function findHomography(srcX0, srcY0, dstX0, dstY0,
   return mat
 }
 
+export function findHomographyFromArray(srcPoints, destPoints) {
+  let args = []
+  srcPoints.forEach((p, idx) => {
+    if (Array.isArray(p)) {
+      args.push(p[0])
+      args.push(p[1])
+      args.push(destPoints[idx][0])
+      args.push(destPoints[idx][1])
+    } else {
+      args.push(p.x)
+      args.push(p.y)
+      args.push(destPoints[idx].x)
+      args.push(destPoints[idx].y)
+    }
+  })
+
+  return findHomography.apply(null, args)
+}
+
 export function adjoint3x3(M) {
   let m11 = M[4] * M[8] - M[7] * M[5]
   let m12 = M[3] * M[8] - M[6] * M[5]
@@ -173,6 +192,23 @@ export function inverse3x3(M) {
     inverse[ii] = adjoint[ii] / determinant
   }
   return inverse
+}
+
+export function multiply3x3(m1, m2) {
+  let m11 = m1[0] * m2[0] + m1[1] * m2[3] + m1[2] * m2[6]
+  let m12 = m1[0] * m2[1] + m1[1] * m2[4] + m1[2] * m2[7]
+  let m13 = m1[0] * m2[2] + m1[1] * m2[5] + m1[2] * m2[8]
+  let m21 = m1[3] * m2[0] + m1[4] * m2[3] + m1[5] * m2[6]
+  let m22 = m1[3] * m2[1] + m1[4] * m2[4] + m1[5] * m2[7]
+  let m23 = m1[3] * m2[2] + m1[4] * m2[5] + m1[5] * m2[8]
+  let m31 = m1[6] * m2[0] + m1[7] * m2[3] + m1[8] * m2[6]
+  let m32 = m1[6] * m2[1] + m1[7] * m2[4] + m1[8] * m2[7]
+  let m33 = m1[6] * m2[2] + m1[7] * m2[5] + m1[8] * m2[8]
+  return [
+    m11, m12, m13,
+    m21, m22, m23,
+    m31, m32, m33,
+  ]
 }
 
 export function projectPoint(x, y, M) {
