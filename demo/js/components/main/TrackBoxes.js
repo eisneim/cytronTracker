@@ -10,24 +10,43 @@ import { findHomographyFromArray, multiply3x3, wrapPerspective } from '../../../
 import { TrackerTypes } from '../../constants'
 
 const styles = csjs`
-  .wraper, .resCanvas {
-    position: absolute;
-  }
-  .searchBox, .innerBox {
-    position: absolute;
-  }
-  .searchBox {
-    border: dashed 1px rgba(255, 255, 255, 0.2);
-  }
-  .searchBox:hover {
-    border-color: rgba(255,255,255, 0.5);
-  }
-  .innerBox {
-    border: solid 1px rgba(255, 255, 255, 0.8);
-  }
-  .innerBox:hover {
-    border-color: rgba(255, 255, 255, 1);
-  }
+.wraper, .resCanvas {
+  position: absolute;
+}
+.searchBox, .innerBox {
+  position: absolute;
+}
+.searchBox {
+  border: dashed 1px rgba(255, 255, 255, 0.2);
+}
+.searchBox:hover {
+  border-color: rgba(255,255,255, 0.5);
+}
+.innerBox {
+  border: solid 1px rgba(255, 255, 255, 0.8);
+}
+.innerBox:hover {
+  border-color: rgba(255, 255, 255, 1);
+}
+.wraper svg {
+  position: absolute;
+  top:0;
+  left:0;
+}
+.resBound {
+  fill: rgba(0,0,0,0);
+}
+.wraper:hover .resBound {
+  fill: rgba(255,255,255,0.1);
+  stroke: ${theme.colorActive};
+}
+.boundHandle {
+  position: absolute;
+  border-radius: 50%;
+}
+.wraper:hover .boundHandle {
+  border: solid 1px rgba(255, 255, 255, 0.5);
+}
 `
 
 export default class TrackBoxes extends React.Component {
@@ -46,7 +65,7 @@ export default class TrackBoxes extends React.Component {
 
   // }
 
-  getImgData($img, trackerData, frame) {
+  getImgData($img, ctracker, frame) {
     // @TODO: it's not nessesary to do down sampling
     // as long as we are calculating the correct transform matrix
     const { cWidth, cHeight } = this.props
@@ -67,9 +86,9 @@ export default class TrackBoxes extends React.Component {
       $img.height = cWidth / ratio
     }
     ctx.drawImage($img, 0, 0, $img.width, $img.height)
-    // update trackerData's resTransPoints array
+    // update ctracker's resTransPoints array
     // this is such a bad code pattern, should be rewrited!!!!
-    trackerData.resInitPoints = [
+    ctracker.resInitPoints = [
       { x: 0, y: 0 },
       { x: $img.width, y: 0 },
       { x: $img.width, y: $img.height },
@@ -82,38 +101,40 @@ export default class TrackBoxes extends React.Component {
       minX = Math.min(f.x, minX)
       minY = Math.min(f.y, minY)
     })
+    debug('maxX,y', maxX, maxY, 'minX,minY', minX, minY)
     let dx = maxX - minX, dy = dx / ratio
-    if (!trackerData.resTransPoints) trackerData.resTransPoints = []
-    trackerData.resTransPoints.push({ x: minX, y: minY }) // TL
-    trackerData.resTransPoints.push({ x: maxX, y: minY }) // TR
-    trackerData.resTransPoints.push({ x: maxX, y: maxY + dy }) // BR
-    trackerData.resTransPoints.push({ x: minX, y: maxY + dy }) // BL
+    if (!ctracker.resTransPoints) ctracker.resTransPoints = []
+    let margin = 20
+    ctracker.resTransPoints.push({ x: minX + margin, y: minY + margin }) // TL
+    ctracker.resTransPoints.push({ x: maxX - margin, y: minY + margin }) // TR
+    ctracker.resTransPoints.push({ x: maxX - margin, y: minY + dy - margin }) // BR
+    ctracker.resTransPoints.push({ x: minX + margin, y: minY + dy - margin }) // BL
 
-    trackerData.resRelativeMtx = findHomographyFromArray(trackerData.resInitPoints, trackerData.resTransPoints)
+    ctracker.resRelativeMtx = findHomographyFromArray(ctracker.resInitPoints, ctracker.resTransPoints)
 
     return ctx.getImageData(0, 0, $img.width, $img.height)
   }
 
   drawResource() {
-    const { currentFrame, trackerData, cWidth, cHeight } = this.props
-    const { resourceId } = trackerData
+    const { currentFrame, ctracker, cWidth, cHeight } = this.props
+    const { resourceId } = ctracker
     /* eslint-disable eqeqeq */
     if (resourceId == null)
       return
 
-    const frame = trackerData.frames[currentFrame]
+    const frame = ctracker.frames[currentFrame]
     const { imgCachePool, imgInitRawData } = this.context.cytron
     const $img = imgCachePool[resourceId]
     let imgData = imgInitRawData[resourceId]
     if (!imgData) {
       debug('init image data not exists, creating it...')
-      imgData = this.getImgData($img, trackerData, frame)
+      imgData = this.getImgData($img, ctracker, frame)
       this.context.cytron.imgInitRawData[resourceId] = imgData
     }
 
-    let mtx = trackerData.resRelativeMtx.slice()
-    if (!trackerData.mtxs) trackerData.mtxs = []
-    var homoMtx = trackerData.mtxs[currentFrame]
+    let mtx = ctracker.resRelativeMtx.slice()
+    if (!ctracker.mtxs) ctracker.mtxs = []
+    var homoMtx = ctracker.mtxs[currentFrame]
     // calculate homography
     if (homoMtx) {
       // change the resTransMtx
@@ -151,9 +172,9 @@ export default class TrackBoxes extends React.Component {
 
   // @TODO: resizable tracker search & inner box
   $boxes() {
-    const { trackerData, currentFrame } = this.props
-    if (!trackerData) return null
-    const frame = trackerData.frames[currentFrame]
+    const { ctracker, currentFrame } = this.props
+    if (!ctracker) return null
+    const frame = ctracker.frames[currentFrame]
     if (!frame || !Array.isArray(frame)) return null
 
     this.drawResource(frame)
@@ -170,7 +191,7 @@ export default class TrackBoxes extends React.Component {
         top: (searchH - rectH) / 2, left: (searchW - rectW) / 2,
       }
       // hide searchbox for plannar tracker
-      if (trackerData.type === TrackerTypes.PLANNAR) {
+      if (ctracker.type === TrackerTypes.PLANNAR) {
         searchStyle.borderColor = 'transparent'
         innerStyle.borderRadius = '50%'
       }
@@ -189,9 +210,9 @@ export default class TrackBoxes extends React.Component {
   }
 
   $lines() {
-    const { trackerData, currentFrame } = this.props
-    if (!trackerData) return null
-    const frame = trackerData.frames[currentFrame]
+    const { ctracker, currentFrame } = this.props
+    if (!ctracker) return null
+    const frame = ctracker.frames[currentFrame]
     if (!frame || !Array.isArray(frame) || frame.length === 1) return null
 
     return frame.map((point, index) => {
@@ -203,6 +224,35 @@ export default class TrackBoxes extends React.Component {
       return (
         <line key={index} x1={point.x} y1={point.y} x2={nextPoint.x} y2={nextPoint.y} strokeWidth="1" stroke="#aaa"/>
       )
+    })
+  }
+
+  $resBoundingBox() {
+    const { ctracker } = this.props
+    if (!ctracker || !ctracker.resTransPoints) return null
+
+    let points = ''
+    // 60,20 100,40 100,80 60,100 20,80 20,40//
+    ctracker.resTransPoints.forEach(p => {
+      points += `${p.x}, ${p.y} `
+    })
+    return <polygon points={points} className={styles.resBound}/>
+  }
+
+  $resBoundingHandle() {
+    const { ctracker } = this.props
+    if (!ctracker || !ctracker.resTransPoints) return null
+    let handleWidth = 12
+    return ctracker.resTransPoints.map(p => {
+      const handleStyle = {
+        width: handleWidth, height: handleWidth,
+        top: p.y - handleWidth / 2, left: p.x - handleWidth / 2,
+      }
+
+      return <Dragable
+        onMove={(e, se) => this._rectMove(e, se, index, point)}
+        onUp={(e, se) => this._dragUp(e, se, index, point)}
+        className={styles.boundHandle} style={handleStyle}/>
     })
   }
 
@@ -222,8 +272,10 @@ export default class TrackBoxes extends React.Component {
           ref="resCanvas"/>
         <svg width={cWidth} height={cHeight} viewBox={`0 0 ${cWidth} ${cHeight}`} xmlns="http://www.w3.org/2000/svg">
           { this.$lines() }
+          { this.$resBoundingBox() }
         </svg>
-       { this.$boxes() }
+        { this.$resBoundingHandle() }
+        { this.$boxes() }
       </div>
     )
   }
@@ -244,7 +296,7 @@ function mapStateToProps(state) {
     currentFrame: root.currentFrame,
     // duration: root.video.duration,
     // canplayId: root.canplayId,
-    trackerData: state.trackers.find(tt => tt.id === root.currentTracker),
+    ctracker: state.trackers.find(tt => tt.id === root.currentTracker),
   }
 }
 
