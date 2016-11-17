@@ -127,7 +127,7 @@ export default class PlannarTracker {
     debug('pCorners', this.pCornerCount)
 
     jsfeat.orb.describe(this.pU8Smooth, this.pCorners, this.pCornerCount, this.pDescriptors)
-    debug('pDescriptors:', this.pDescriptors)
+    // debug('pDescriptors:', this.pDescriptors)
 
     // build pyramid
     // for (let leve = 0; leve < this.options.numTrainLevels; lev++) {
@@ -164,15 +164,15 @@ export default class PlannarTracker {
 
     this.sCornerCount = this.detect_keypoints(this.sU8Smooth, this.sCorners, this.options.MAX_CORNER)
     // this.drawCorners(this.sCorners)
-    debug('sCorners', this.sCornerCount)
+    // debug('sCorners', this.sCornerCount)
 
     jsfeat.orb.describe(this.sU8Smooth, this.sCorners, this.sCornerCount, this.sDescriptors)
-    debug('sDescriptors:', this.pDescriptors)
+    // debug('sDescriptors:', this.pDescriptors)
 
     // now, matching
     this.numMatches = this.matchPattern()
     this.drawMatches(this.matches)
-    debug('numMatches', this.numMatches, this.matches)
+    // debug('numMatches', this.numMatches, this.matches)
 
     // transform matrix
     let homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t | jsfeat.C1_t)
@@ -182,7 +182,7 @@ export default class PlannarTracker {
     debug('goodCnt', goodCnt, homo3x3, matchMask)
     // debug('patternXy, searchXy ', patternXy, searchXy)
     let newPoints = this.transformPoints(this.patternPoints, homo3x3.data)
-    debug('newPoints, points', newPoints)
+    // debug('newPoints, points', newPoints)
     return { newPoints, homo3x3: homo3x3.data }
   }
 

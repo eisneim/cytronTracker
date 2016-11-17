@@ -83,6 +83,7 @@ export default {
     }
 
     newTracker.frames[currentFrame] = frame
+    newTracker.initFrame = frame.map(f => Object.assign({}, f))
     trackers.push(newTracker)
 
     return trackers.slice()
@@ -164,6 +165,13 @@ export default {
       notify.warn('should create a new tracker, currently only support 1 tracker 1 resource')
       return trackers
     }
+    // we going to calculate init trasform handle in TrackBoxes Component
+    // this needs refactor, should seperate concerns
+    tracker.resTransPoints = []
+    tracker.resTransMtx = [ // identity matrix
+      1, 0, 0,
+      0, 1, 0,
+      0, 0, 1 ]
     tracker.resourceId = resource.id
 
     trackers[idx] = tracker
