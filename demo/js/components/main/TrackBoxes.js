@@ -10,8 +10,11 @@ import { findHomographyFromArray, multiply3x3, wrapPerspective, projectPoint, in
 import { TrackerTypes } from '../../constants'
 
 const styles = csjs`
-.wraper, .resCanvas {
+.wraper, .resCanvas, .magnifyCanvas {
   position: absolute;
+}
+.magnifyCanvas {
+  top: 0; left: 0;
 }
 .searchBox, .innerBox {
   position: absolute;
@@ -50,6 +53,7 @@ const styles = csjs`
   border: solid 1px rgba(255, 255, 255, 0.5);
 }
 `
+const MAGNIFY_WIDTH = 120
 
 export default class TrackBoxes extends React.Component {
 
@@ -60,6 +64,8 @@ export default class TrackBoxes extends React.Component {
   componentDidMount() {
     this.$resCanvas = findDOMNode(this.refs.resCanvas)
     this.resCtx = this.$resCanvas.getContext('2d')
+    this.$magnifyCanvas = findDOMNode(this.refs.magnifyCanvas)
+    this.magCtx = this.$magnifyCanvas.getContext('2d')
   }
 
   // componentWillReceiveProps(newProps) {
@@ -167,7 +173,7 @@ export default class TrackBoxes extends React.Component {
       se.target.parentNode.style.top = (y - point.searchH / 2) + 'px'
       se.target.parentNode.style.left = (x - point.searchW / 2) + 'px'
     }
-
+    this.magnify(x, y)
     // this.props.trackerPointMove(x, y, index)
   }
 
@@ -177,6 +183,7 @@ export default class TrackBoxes extends React.Component {
     let y = this.__moveStart.y + offsetY
     this.props.trackerPointMove(x, y, index)
     this.__moveStart = null
+    this.magCtx.clearRect(0, 0, MAGNIFY_WIDTH, MAGNIFY_WIDTH)
   }
 
   _innerMove = (ee, se, index, point, transformedPoint) => {
@@ -193,6 +200,19 @@ export default class TrackBoxes extends React.Component {
 
   _innerDragUp = () => {
     this.__innerStart = null
+    this.magCtx.clearRect(0, 0, MAGNIFY_WIDTH, MAGNIFY_WIDTH)
+  }
+
+  magnify(x, y) {
+    const { cytron } = this.context
+    let sampleRadius = 10
+    let scaleFactor = MAGNIFY_WIDTH / (2 * sampleRadius)
+    // let dx = dy = MAGNIFY_WIDTH / 2
+    this.magCtx.drawImage(cytron.drawCanvas, x - sampleRadius, y - sampleRadius,
+      sampleRadius * 2, sampleRadius * 2, 0, 0, MAGNIFY_WIDTH, MAGNIFY_WIDTH)
+    this.magCtx.fillStyle = '#66bb40'
+    this.magCtx.fillRect(MAGNIFY_WIDTH / 2, 0, 1, MAGNIFY_WIDTH)
+    this.magCtx.fillRect(0, MAGNIFY_WIDTH / 2, MAGNIFY_WIDTH, 1)
   }
 
   // @TODO: resizable tracker search & inner box
@@ -292,6 +312,9 @@ export default class TrackBoxes extends React.Component {
 
     return (
       <div className={styles.wraper} style={wraperStyle}>
+        <canvas className={styles.magnifyCanvas} width={MAGNIFY_WIDTH}
+          height={MAGNIFY_WIDTH}
+          ref='magnifyCanvas'/>
         <canvas className={styles.resCanvas}
           width={cWidth}
           height={cHeight}

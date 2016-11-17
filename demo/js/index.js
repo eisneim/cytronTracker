@@ -166,9 +166,10 @@ class CytronTrackerApp {
     this.store.dispatch(rootActions.trackPointsDone(trackResults, targetFrame, prevFrame))
   }
 
-  setDrawCtx(v) {
+  setDrawCtx(v, c) {
     debug('set cytron canvas draw context')
     this.drawCtx = v
+    this.drawCanvas = c
   }
 
   deleteTracker(id) {

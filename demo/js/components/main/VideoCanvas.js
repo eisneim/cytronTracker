@@ -37,7 +37,7 @@ export default class VideoCanvas extends React.Component {
     this.$dstCanvas = findDOMNode(this.refs.dstCanvas)
     this.srcCtx = this.$srcCanvas.getContext('2d')
     this.dstCtx = this.$dstCanvas.getContext('2d')
-    this.context.cytron.setDrawCtx(this.dstCtx)
+    this.context.cytron.setDrawCtx(this.dstCtx, this.$dstCanvas)
   }
 
   drawCurrentFrame() {
