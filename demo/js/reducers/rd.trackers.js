@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { TrackerTypes, DefaultTracker } from '../constants'
 import notify from '../utils/util.notify.js'
+import { findHomographyFromArray } from '../../../src/utils/matrix.js'
 
 const debug = require('debug')('cy:rd.trackers')
 let idCount = 1
@@ -174,6 +175,13 @@ export default {
       0, 0, 1 ]
     tracker.resourceId = resource.id
 
+    trackers[idx] = tracker
+    return trackers
+  },
+  UPDATE_RES_POINTS(trackers, { x, y, index }, cytron) {
+    const { tracker, idx } = actTrackerNFrame(cytron.store.getState())
+    tracker.resTransPoints[index] = { x, y }
+    tracker.resRelativeMtx = findHomographyFromArray(tracker.resInitPoints, tracker.resTransPoints)
     trackers[idx] = tracker
     return trackers
   },

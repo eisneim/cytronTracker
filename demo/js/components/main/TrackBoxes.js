@@ -6,7 +6,7 @@ import csjs from 'CSJS'
 import Dragable from '../_shared/Dragable'
 const debug = require('debug')('cy:TrackBoxes')
 
-import { findHomographyFromArray, multiply3x3, wrapPerspective, projectPoint } from '../../../../src/utils/matrix.js'
+import { findHomographyFromArray, multiply3x3, wrapPerspective, projectPoint, inverse3x3 } from '../../../../src/utils/matrix.js'
 import { TrackerTypes } from '../../constants'
 
 const styles = csjs`
@@ -18,11 +18,13 @@ const styles = csjs`
 }
 .searchBox {
   border: dashed 1px rgba(255, 255, 255, 0.2);
+  pointer-events: none;
 }
 .searchBox:hover {
   border-color: rgba(255,255,255, 0.5);
 }
 .innerBox {
+  pointer-events: auto;
   border: solid 1px rgba(255, 255, 255, 0.8);
 }
 .innerBox:hover {
@@ -119,7 +121,7 @@ export default class TrackBoxes extends React.Component {
     const { ctracker, cWidth, cHeight, homoMtx, frame } = this.props
     const { resourceId } = ctracker
     /* eslint-disable eqeqeq */
-    if (resourceId == null)
+    if (resourceId == null || !homoMtx)
       return
 
     const { imgCachePool, imgInitRawData } = this.context.cytron
@@ -135,9 +137,7 @@ export default class TrackBoxes extends React.Component {
     // if (!ctracker.mtxs) ctracker.mtxs = []
     // var homoMtx = ctracker.mtxs[currentFrame]
     // calculate homography
-    if (homoMtx) {
-      mtx = multiply3x3(homoMtx, mtx)
-    }
+    mtx = multiply3x3(homoMtx, mtx)
     // draw attatched resource
     this.resCtx.clearRect(0, 0, cWidth, cHeight)
     let destData = this.resCtx.createImageData(cWidth, cHeight)
@@ -177,6 +177,22 @@ export default class TrackBoxes extends React.Component {
     let y = this.__moveStart.y + offsetY
     this.props.trackerPointMove(x, y, index)
     this.__moveStart = null
+  }
+
+  _innerMove = (ee, se, index, point, transformedPoint) => {
+    if (!this.__innerStart) {
+      this.__innerStart = Object.assign({}, transformedPoint)
+      this.__innerStart.inverseMtx = inverse3x3(this.props.homoMtx)
+    }
+    const { offsetX, offsetY } = this.getOffset(ee, se)
+    let nx = this.__innerStart.x + offsetX
+    let ny = this.__innerStart.y + offsetY
+    const { x, y } = projectPoint(nx, ny, this.__innerStart.inverseMtx)
+    this.props.resBoundPointMove(x, y, index)
+  }
+
+  _innerDragUp = () => {
+    this.__innerStart = null
   }
 
   // @TODO: resizable tracker search & inner box
@@ -233,7 +249,7 @@ export default class TrackBoxes extends React.Component {
 
   $resBoundingBox() {
     const { ctracker, homoMtx } = this.props
-    if (!ctracker || ctracker.resourceId == null) return null
+    if (!ctracker || ctracker.resourceId == null || !homoMtx) return null
 
     let points = ''
     // 60,20 100,40 100,80 60,100 20,80 20,40//
@@ -246,7 +262,7 @@ export default class TrackBoxes extends React.Component {
 
   $resBoundingHandle() {
     const { ctracker, homoMtx } = this.props
-    if (!ctracker || ctracker.resourceId == null) return null
+    if (!ctracker || ctracker.resourceId == null || !homoMtx) return null
 
     let handleWidth = 12
     return ctracker.resTransPoints.map((p, idx) => {
@@ -257,8 +273,8 @@ export default class TrackBoxes extends React.Component {
       }
 
       return <Dragable key={idx}
-        onMove={(e, se) => this._rectMove(e, se, index, point)}
-        onUp={(e, se) => this._dragUp(e, se, index, point)}
+        onMove={(e, se) => this._innerMove(e, se, idx, p, newP)}
+        onUp={(e, se) => this._innerDragUp(e, se, idx, p, newP)}
         className={styles.boundHandle} style={handleStyle}/>
     })
   }
@@ -300,7 +316,7 @@ function mapStateToProps(state) {
   let ctracker = state.trackers.find(tt => tt.id === root.currentTracker)
   let frame = ctracker ? ctracker.frames[root.currentFrame] : null
   let homoMtx = null // [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
-  if (ctracker) {
+  if (ctracker && frame) {
     homoMtx = findHomographyFromArray(ctracker.initFrame, frame)
   }
 

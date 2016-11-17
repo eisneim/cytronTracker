@@ -55,6 +55,14 @@ export function trackerPointMove(x, y, index) {
   }
 }
 
+export function resBoundPointMove(x, y, index) {
+  return {
+    type: 'UPDATE_RES_POINTS',
+    meta: { ignoreLog: true },
+    payload: { x, y, index },
+  }
+}
+
 export function trackNextFrame() {
   return {
     type: 'TRACK_BY_FRAME',
